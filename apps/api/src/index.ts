@@ -23,10 +23,10 @@ import { Event } from './models/index.js';
 
 dotenv.config();
 
-// ── Guard: check JWT secret and fallback with warning if not set ───────────
+// ── Guard: refuse to boot without required secrets ────────────────────────
 if (!process.env.JWT_SECRET) {
-  console.warn('WARNING: JWT_SECRET environment variable is not set. Using temporary fallback secret.');
-  process.env.JWT_SECRET = 'temporary_fallback_secret_key_1234567890';
+  console.error('FATAL: JWT_SECRET environment variable is not set. Refusing to start.');
+  process.exit(1);
 }
 
 
