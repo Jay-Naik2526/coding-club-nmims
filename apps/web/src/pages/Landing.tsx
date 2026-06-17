@@ -64,8 +64,9 @@ export function Landing() {
 
       {/* nav */}
       <nav className="fixed inset-x-0 top-0 z-30 flex items-center justify-between px-5 py-4 sm:px-10">
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="font-[family-name:var(--font-display)] text-sm tracking-wide" style={{ color: paper }}>
-          CC<span style={{ color: cfg.acc }}>_</span>
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2 font-[family-name:var(--font-display)] text-sm tracking-wide" style={{ color: paper }}>
+          <img src="/logo.jpeg" alt="Logo" className="h-6 w-6 rounded-full object-cover border border-white/20" />
+          <span>CC<span style={{ color: cfg.acc }}>_</span></span>
         </button>
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] sm:gap-5">
           <button onClick={() => wipeTo('/join')} className="opacity-100 hover:opacity-80 transition-opacity font-bold" style={{ color: '#ff4d4d' }}>Apply</button>

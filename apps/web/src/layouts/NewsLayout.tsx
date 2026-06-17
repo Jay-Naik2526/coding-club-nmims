@@ -44,14 +44,17 @@ export function NewsLayout() {
           <span className="hidden sm:inline">{today}</span>
         </div>
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <button onClick={() => navigate('/events')} className="text-left">
-            <div className="font-[family-name:var(--font-serif)] font-black leading-[0.85] tracking-[-0.02em]" style={{ fontSize: 'clamp(2.2rem,6vw,5rem)' }}>
-              THE
-              <br />
-              CODING CLUB
-            </div>
-            <div className="mt-1.5 text-[9px] uppercase tracking-[0.12em]" style={{ color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
-              Shirpur Campus Edition
+          <button onClick={() => navigate('/events')} className="flex items-center gap-4 text-left">
+            <img src="/logo.jpeg" alt="Coding Club Logo" className="h-14 w-14 object-cover border" style={{ borderColor: 'var(--news-ink)' }} />
+            <div>
+              <div className="font-[family-name:var(--font-serif)] font-black leading-[0.85] tracking-[-0.02em]" style={{ fontSize: 'clamp(2.2rem,6vw,5rem)' }}>
+                THE
+                <br />
+                CODING CLUB
+              </div>
+              <div className="mt-1.5 text-[9px] uppercase tracking-[0.12em]" style={{ color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
+                Shirpur Campus Edition
+              </div>
             </div>
           </button>
           <div className="flex flex-wrap justify-end gap-1">
