@@ -74,6 +74,7 @@ jobs:
             }
             fs.writeFileSync('../hf-deploy/package.json', JSON.stringify(pkg, null, 2));
           "
+          rm -f ../hf-deploy/package-lock.json
 
       - name: Push to Hugging Face Space (Orphan Branch)
         env:
