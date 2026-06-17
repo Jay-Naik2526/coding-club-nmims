@@ -1,0 +1,20 @@
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IRegistration extends Document {
+  userId: mongoose.Types.ObjectId;
+  eventId: mongoose.Types.ObjectId;
+  teamName?: string;
+  status: string;
+  createdAt: Date;
+}
+
+const RegistrationSchema = new Schema<IRegistration>({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  eventId: { type: Schema.Types.ObjectId, ref: 'Event', required: true },
+  teamName: { type: String },
+  status: { type: String, default: 'registered' },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export const Registration = mongoose.model<IRegistration>('Registration', RegistrationSchema);
+export default Registration;

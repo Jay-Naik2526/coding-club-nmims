@@ -1,0 +1,268 @@
+@import 'tailwindcss';
+
+/* ═══════════════════════════════════════════════════════════
+   DESIGN TOKENS  (ported from coding-club-v4_1.html reference)
+   Two worlds: OS / 3D landing  +  Newspaper editorial
+═══════════════════════════════════════════════════════════ */
+@theme {
+  /* OS / light palette */
+  --color-os-bg: #e8e4dc;
+  --color-os-surface: #f0ede6;
+  --color-os-panel: #dedad2;
+  --color-os-border: #aeaaa0;
+  --color-os-ink: #1a1814;
+
+  /* dept accents */
+  --color-blue: #0055ff;
+  --color-magenta: #e0006e;
+  --color-green: #007a3d;
+  --color-amber: #b86800;
+
+  /* newspaper */
+  --color-news-bg: #f3efe5;
+  --color-news-ink: #1a1612;
+  --color-news-red: #c8002a;
+
+  --font-os: 'Space Mono', monospace;
+  --font-display: 'Archivo Black', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'DM Sans', sans-serif;
+}
+
+:root {
+  --os-bg: #e8e4dc;
+  --os-surface: #f0ede6;
+  --os-panel: #dedad2;
+  --os-border: #aeaaa0;
+  --os-ink: #1a1814;
+  --os-muted: rgba(26, 24, 20, 0.45);
+  --os-hint: rgba(26, 24, 20, 0.15);
+  --bevel-l: rgba(255, 255, 255, 0.8);
+  --bevel-d: rgba(0, 0, 0, 0.22);
+
+  --blue: #0055ff;
+  --magenta: #e0006e;
+  --green: #007a3d;
+  --amber: #b86800;
+
+  /* the live dept accent — JS mutates this on the <html> element */
+  --acc: #0055ff;
+
+  --news-bg: #f3efe5;
+  --news-ink: #1a1612;
+  --news-red: #c8002a;
+
+  --font-os: 'Space Mono', monospace;
+  --font-display: 'Archivo Black', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'DM Sans', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background: var(--os-bg);
+  color: var(--os-ink);
+  font-family: var(--font-os);
+  overflow-x: hidden;
+}
+/* hide native cursor only on pointer-fine devices (custom cursor) */
+@media (pointer: fine) {
+  body.custom-cursor {
+    cursor: none;
+  }
+}
+
+/* ── subtle CRT scanlines ── */
+.scanlines::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.012) 3px,
+    rgba(0, 0, 0, 0.012) 4px
+  );
+}
+
+/* ── dot-grid background helper ── */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ═══ BEVEL HELPERS (Win98-style inset/outset) ═══ */
+.bv {
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-l),
+    inset -1px -1px 0 var(--bevel-d),
+    2px 2px 6px rgba(0, 0, 0, 0.18);
+}
+.bvi {
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-d),
+    inset -1px -1px 0 var(--bevel-l);
+}
+.bvb {
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-l),
+    inset -1px -1px 0 var(--bevel-d),
+    2px 2px 0 rgba(0, 0, 0, 0.25);
+  transition:
+    box-shadow 0.08s,
+    transform 0.08s;
+}
+.bvb:active {
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-d),
+    inset -1px -1px 0 var(--bevel-l);
+  transform: translate(1px, 1px);
+}
+.bv-out {
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-l),
+    inset -1px -1px 0 var(--bevel-d),
+    3px 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ═══ CUSTOM CURSOR ═══ */
+#cur {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--os-ink);
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition:
+    width 0.15s,
+    height 0.15s,
+    border-color 0.2s,
+    background 0.2s;
+}
+#cur.h {
+  width: 30px;
+  height: 30px;
+  border-color: var(--acc);
+  background: color-mix(in srgb, var(--acc) 8%, transparent);
+}
+#cur2 {
+  width: 4px;
+  height: 4px;
+  background: var(--acc);
+  position: fixed;
+  z-index: 9998;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition:
+    left 0.05s,
+    top 0.05s,
+    background 0.3s;
+}
+
+/* ═══ WIPE TRANSITION ═══ */
+#wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: var(--news-ink);
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.75s cubic-bezier(0.76, 0, 0.24, 1);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#wipe.in {
+  clip-path: inset(0% 0 0 0);
+  pointer-events: all;
+}
+#wipe.out {
+  clip-path: inset(0 0 100% 0);
+}
+.wipe-t {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  color: var(--news-bg);
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.3s 0.35s,
+    transform 0.3s 0.35s;
+}
+#wipe.in .wipe-t {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══ NEWSPAPER DROP-CAP & PULL-QUOTE ═══ */
+.drop-cap p:first-of-type::first-letter {
+  font-family: var(--font-serif);
+  font-size: 3.2rem;
+  font-weight: 900;
+  float: left;
+  line-height: 0.75;
+  margin: 0.08em 0.1em 0 0;
+  color: var(--news-red);
+}
+.pull-q {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.3;
+  border-top: 3px solid var(--news-ink);
+  border-bottom: 1px solid var(--news-ink);
+  padding: 0.6rem 0;
+  margin: 1.2rem 0;
+}
+
+/* status blink */
+@keyframes blink-b {
+  0%,
+  90%,
+  100% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 0.2;
+  }
+}
+@keyframes blink-c {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+.blink {
+  animation: blink-b 1.4s infinite;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

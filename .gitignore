@@ -1,0 +1,66 @@
+# ─── Root monorepo .gitignore ───────────────────────────────────────────────
+
+# ── Environment / secrets ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example          # keep the example file in git
+*.pem
+*.key
+*.cert
+
+# ── Seed script (contains credentials / disposable test data) ────────────────
+apps/api/src/seed.ts
+
+# ── Node ─────────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# ── Build outputs ─────────────────────────────────────────────────────────────
+dist/
+build/
+.output/
+out/
+
+# ── TypeScript incremental / cache ───────────────────────────────────────────
+*.tsbuildinfo
+.tscache/
+
+# ── Vite / Rollup ─────────────────────────────────────────────────────────────
+.vite/
+vite.config.*.timestamp*
+rollup.config.*.timestamp*
+
+# ── OS cruft ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor / IDE ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.history/
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Test coverage ─────────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Docker ───────────────────────────────────────────────────────────────────
+*.dockerignore
+docker-compose.override.yml
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
+.cache/
+tmp/
+temp/
