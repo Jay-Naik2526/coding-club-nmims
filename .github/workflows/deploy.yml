@@ -78,7 +78,7 @@ jobs:
       - name: Push to Hugging Face Space (Orphan Branch)
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE_URL: "huggingface.co/spaces/Jay-Naik2526/coding-club"
+          HF_SPACE_URL: "huggingface.co/spaces/Jaynaik2526/coding-club"
         run: |
           cd ../hf-deploy
           git init
