@@ -48,24 +48,11 @@ export function JoinPage() {
         <h1 className="font-[family-name:var(--font-serif)] font-black leading-[0.9]" style={{ fontSize: 'clamp(2.4rem,6vw,4rem)' }}>
           Core Committee Applications
         </h1>
-        <p className="mt-4 text-base leading-relaxed" style={{ color: 'rgba(26,22,18,.6)' }}>
-          <strong>⚠ Attention:</strong> This application form is strictly for joining the official{' '}
-          <strong>Core Committee (Organizers &amp; Leadership)</strong> of the Coding Club —{' '}
-          <em>not for general membership.</em>
+        <p className="mt-4 text-base leading-relaxed font-semibold" style={{ color: 'rgba(26,22,18,.75)', fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}>
+          Welcome to the Coding Club Core Committee selection portal. We are seeking driven, committed students to coordinate our Event Management, Development, Security, Documentation, PR, and Creative divisions.
         </p>
-        <p className="mt-3 text-base leading-relaxed" style={{ color: 'rgba(26,22,18,.6)' }}>
-          We are recruiting highly committed students to lead and coordinate across all our committees:
-        </p>
-        <ul className="mt-2 ml-4 space-y-1 text-sm" style={{ color: 'rgba(26,22,18,.65)' }}>
-          <li>🎯 <strong>Event Management</strong> — Plan and execute large-scale hackathons, contests &amp; workshops</li>
-          <li>💻 <strong>Web Development</strong> — Build and maintain the club's digital products &amp; platforms</li>
-          <li>🔐 <strong>Cybersecurity</strong> — Design CTF challenges and run security-focused programmes</li>
-          <li>📝 <strong>Documentation</strong> — Handle reports, newsletters, and knowledge management</li>
-          <li>📣 <strong>Marketing &amp; Public Relations</strong> — Drive outreach, sponsorships &amp; partnerships</li>
-          <li>🎨 <strong>Creative &amp; Social Media</strong> — Manage branding, design assets &amp; online presence</li>
-        </ul>
-        <p className="mt-4 text-sm font-semibold tracking-wide" style={{ color: 'var(--news-red)' }}>
-          Code. Collaborate. Create.
+        <p className="mt-3 text-sm leading-relaxed" style={{ color: 'rgba(26,22,18,.6)' }}>
+          Please complete all required fields below to register your application. Shortlisted candidates will be contacted directly for interview rounds.
         </p>
       </header>
 
