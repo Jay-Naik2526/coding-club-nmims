@@ -1,0 +1,89 @@
+name: Deploy Backend to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git User
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Build HF deployment package
+        run: |
+          # 1. Create a clean temporary directory for the deployment build
+          mkdir -p ../hf-deploy
+          
+          # 2. Copy the api server contents to the temporary directory's root
+          cp -r apps/api/* ../hf-deploy/
+          
+          # 3. Create the required README.md at the root of the deployment directory with Hugging Face Spaces metadata
+          cat << 'EOF' > ../hf-deploy/README.md
+          ---
+          title: coding-club-api
+          emoji: 💻
+          colorFrom: red
+          colorTo: blue
+          sdk: docker
+          app_port: 7860
+          pinned: false
+          ---
+          
+          # Coding Club API
+          NMIMS Shirpur Coding Club Backend Engine.
+          EOF
+          
+          # 4. Create the root Dockerfile for Hugging Face in the deployment directory
+          cat << 'EOF' > ../hf-deploy/Dockerfile
+          FROM node:24-alpine
+          
+          WORKDIR /app
+          
+          COPY package*.json ./
+          RUN npm install
+          
+          COPY tsconfig.json ./
+          COPY src/ ./src/
+          
+          RUN npm run build
+          
+          EXPOSE 7860
+          ENV PORT=7860
+          ENV NODE_ENV=production
+          
+          CMD ["npm", "start"]
+          EOF
+
+      - name: Remove @cc/shared dependency from package.json for clean standalone install
+        run: |
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('../hf-deploy/package.json', 'utf8'));
+            if (pkg.dependencies && pkg.dependencies['@cc/shared']) {
+              delete pkg.dependencies['@cc/shared'];
+            }
+            fs.writeFileSync('../hf-deploy/package.json', JSON.stringify(pkg, null, 2));
+          "
+
+      - name: Push to Hugging Face Space (Orphan Branch)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE_URL: "huggingface.co/spaces/Jay-Naik2526/coding-club-api"
+        run: |
+          cd ../hf-deploy
+          git init
+          git checkout -b main
+          git add -A
+          git commit -m "deploy: update backend production workspace"
+          git remote add origin "https://x-access-token:${HF_TOKEN}@${HF_SPACE_URL}"
+          git push -f origin main
