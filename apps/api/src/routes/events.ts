@@ -63,7 +63,10 @@ router.post('/', requireAdmin, async (req, res) => {
 });
 
 // Admin-only: Update Event
-router.put('/:id', requireAdmin, async (req, res) => {
+// Admin-only: Update Event. Exposed as both PUT and POST /:id/update — the POST
+// alias is a CORS "simple" method, so the browser sends no preflight (HF Spaces'
+// proxy mishandles preflights). See apps/web/src/lib/api.ts.
+const updateEvent: express.RequestHandler = async (req, res) => {
   try {
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!event) {
@@ -73,10 +76,12 @@ router.put('/:id', requireAdmin, async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: (err as Error).message });
   }
-});
+};
+router.put('/:id', requireAdmin, updateEvent);
+router.post('/:id/update', requireAdmin, updateEvent);
 
-// Admin-only: Delete Event
-router.delete('/:id', requireAdmin, async (req, res) => {
+// Admin-only: Delete Event. DELETE + a POST alias (no preflight via POST).
+const deleteEvent: express.RequestHandler = async (req, res) => {
   try {
     const event = await Event.findByIdAndDelete(req.params.id);
     if (!event) {
@@ -86,6 +91,8 @@ router.delete('/:id', requireAdmin, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete event' });
   }
-});
+};
+router.delete('/:id', requireAdmin, deleteEvent);
+router.post('/:id/delete', requireAdmin, deleteEvent);
 
 export default router;

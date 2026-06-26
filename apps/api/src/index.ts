@@ -100,7 +100,10 @@ app.use(helmet({
     },
   },
 }));
-app.use(express.json());
+// Parse application/json AND text/plain as JSON. The frontend sends bodies as
+// text/plain to avoid the CORS preflight that HF Spaces' proxy mishandles
+// (see apps/web/src/lib/api.ts). Bodies are still JSON strings either way.
+app.use(express.json({ type: ['application/json', 'text/plain'] }));
 app.use(cookieParser());
 
 // Database connection
