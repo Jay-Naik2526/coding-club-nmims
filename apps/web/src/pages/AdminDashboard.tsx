@@ -281,7 +281,7 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
     try {
       if (editingEvent) {
         // Update
-        await api.put(`/events/${editingEvent._id}`, payload)
+        await api.post(`/events/${editingEvent._id}/update`, payload)
         setFormSuccess('Event updated successfully!')
       } else {
         // Create
@@ -300,7 +300,7 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to permanently delete this event? This will orphan registrations.')) return
     try {
-      await api.delete(`/events/${id}`)
+      await api.post(`/events/${id}/delete`)
       queryClient.invalidateQueries({ queryKey: ['events'] })
     } catch (err) {
       alert('Failed to delete event')
