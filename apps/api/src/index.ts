@@ -47,7 +47,13 @@ const io = new Server(server, {
   transports: ['polling', 'websocket'], // fallback to polling is critical on HF spaces
 });
 
-// Middlewares
+// CORS must be first — browser sends OPTIONS preflight before the real request.
+// If cors() runs after globalLimiter/helmet, the preflight gets no CORS headers
+// and the browser blocks the actual POST with ERR_FAILED.
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  credentials: true,
+}));
 app.use(globalLimiter);
 app.use(helmet({
   contentSecurityPolicy: {
@@ -57,15 +63,11 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", process.env.CLIENT_ORIGIN || 'http://localhost:5173', 'https://jaynaik2526-coding-club.hf.space', 'https://coding-club-frontend.vercel.app'],
+      connectSrc: ["'self'", process.env.CLIENT_ORIGIN || 'http://localhost:5173', 'https://jaynaik2526-coding-club.hf.space'],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
     },
   },
-}));
-app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
-  credentials: true,
 }));
 app.use(express.json());
 app.use(cookieParser());
