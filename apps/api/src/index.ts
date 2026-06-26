@@ -6,10 +6,8 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import { globalLimiter } from './middleware/rateLimit.js';
-import './config/passport.js';
 import authRoutes from './routes/auth.js';
 import eventsRoutes from './routes/events.js';
 import registrationsRoutes from './routes/registrations.js';
@@ -36,24 +34,57 @@ const app = express();
 // Fixes: ERR_ERL_UNEXPECTED_X_FORWARDED_FOR from express-rate-limit
 app.set('trust proxy', 1);
 
+// ── CORS allowlist ─────────────────────────────────────────────────────────
+// CLIENT_ORIGIN may be a comma-separated list. We normalize (strip trailing
+// slash) and reflect the request's Origin so credentials work cross-site.
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+const corsOptions: cors.CorsOptions = {
+  origin(origin, cb) {
+    // allow same-origin / server-to-server (no Origin header) and any allowlisted origin
+    if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) return cb(null, true);
+    return cb(new Error(`Origin ${origin} not allowed by CORS`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 const server = http.createServer(app);
 
 // Socket.IO server with fallback to polling (transports: ['polling', 'websocket'])
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_ORIGIN || '*',
+    origin: allowedOrigins,
     credentials: true,
   },
   transports: ['polling', 'websocket'], // fallback to polling is critical on HF spaces
 });
 
-// CORS must be first — browser sends OPTIONS preflight before the real request.
-// If cors() runs after globalLimiter/helmet, the preflight gets no CORS headers
-// and the browser blocks the actual POST with ERR_FAILED.
-app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
-  credentials: true,
-}));
+// ── Bulletproof CORS — runs BEFORE helmet/limiter/everything ──────────────
+// Manually set headers and short-circuit the OPTIONS preflight so no later
+// middleware (rate limiter, helmet) can ever strip them. This guarantees the
+// browser receives Access-Control-Allow-Credentials on the preflight.
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin.replace(/\/$/, ''))) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Vary', 'Origin');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+});
+// Keep the cors() lib too as a belt-and-suspenders layer.
+app.use(cors(corsOptions));
 app.use(globalLimiter);
 app.use(helmet({
   contentSecurityPolicy: {
@@ -71,7 +102,6 @@ app.use(helmet({
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(passport.initialize());
 
 // Database connection
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/codingclub';

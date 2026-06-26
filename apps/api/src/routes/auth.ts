@@ -1,5 +1,4 @@
 import express from 'express';
-import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { User } from '../models/index.js';
@@ -28,27 +27,7 @@ const generateTokenAndSetCookie = (res: express.Response, user: any) => {
   });
 };
 
-// Initiate Google OAuth
-router.get(
-  '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-// Google OAuth callback redirect
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: '/auth/failure' }),
-  (req: any, res) => {
-    if (!req.user) {
-      return res.status(400).redirect(`${process.env.CLIENT_ORIGIN || 'http://localhost:5173'}/login?error=auth_failed`);
-    }
-    generateTokenAndSetCookie(res, req.user);
-    // Redirect back to frontend
-    res.redirect(process.env.CLIENT_ORIGIN || 'http://localhost:5173');
-  }
-);
-
-// Fallback email/password login with rate limiting
+// Email/password login with rate limiting
 router.post('/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
   

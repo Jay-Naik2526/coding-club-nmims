@@ -78,7 +78,7 @@ export function EventDetailPage() {
 
   const handleSoloRegister = async () => {
     if (!user) {
-      alert('Please Sign In using the Google link at the top right of the page.');
+      alert('Please sign in first — use the Login link at the top right of the page.');
       return;
     }
     setIsRegistering(true);
@@ -98,7 +98,7 @@ export function EventDetailPage() {
   const handleTeamRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert('Please Sign In using the Google link at the top right of the page.');
+      alert('Please sign in first — use the Login link at the top right of the page.');
       return;
     }
     if (!teamName.trim()) {
