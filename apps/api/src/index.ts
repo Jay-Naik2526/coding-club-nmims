@@ -31,6 +31,11 @@ if (!process.env.JWT_SECRET) {
 
 
 const app = express();
+
+// Trust the first proxy hop (required when running behind Docker / HF Spaces / Nginx)
+// Fixes: ERR_ERL_UNEXPECTED_X_FORWARDED_FOR from express-rate-limit
+app.set('trust proxy', 1);
+
 const server = http.createServer(app);
 
 // Socket.IO server with fallback to polling (transports: ['polling', 'websocket'])
