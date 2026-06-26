@@ -8,6 +8,11 @@ import { authLimiter } from '../middleware/rateLimit.js';
 
 const router = express.Router();
 
+// Cross-site deployment: frontend on vercel.app, API on hf.space.
+// Browsers require SameSite=None + Secure for cookies to be sent cross-site.
+// HF Spaces sets PORT=7860 but not NODE_ENV=production, so we detect both.
+const isDeployed = process.env.NODE_ENV === 'production' || process.env.PORT === '7860';
+
 const generateTokenAndSetCookie = (res: express.Response, user: any) => {
   const token = jwt.sign(
     { id: user._id, role: user.role },
@@ -17,8 +22,8 @@ const generateTokenAndSetCookie = (res: express.Response, user: any) => {
 
   res.cookie('token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: isDeployed,            // required for SameSite=None
+    sameSite: isDeployed ? 'none' : 'lax', // cross-site (vercel → hf.space) needs None
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 };
@@ -85,8 +90,8 @@ router.post('/login', authLimiter, async (req, res) => {
 router.post('/logout', (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: isDeployed,
+    sameSite: isDeployed ? 'none' : 'lax',
   });
   res.json({ message: 'Logged out successfully' });
 });

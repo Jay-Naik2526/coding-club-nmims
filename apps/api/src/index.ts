@@ -57,7 +57,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", process.env.CLIENT_ORIGIN || 'http://localhost:5173'],
+      connectSrc: ["'self'", process.env.CLIENT_ORIGIN || 'http://localhost:5173', 'https://jaynaik2526-coding-club.hf.space', 'https://coding-club-frontend.vercel.app'],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
     },
