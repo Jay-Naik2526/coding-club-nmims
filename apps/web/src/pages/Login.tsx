@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import axios from 'axios'
 import { useApp } from '@/store/useApp'
 import api from '@/lib/api'
 
-const ink = '#0b0a09'
-const paper = '#f3efe5'
+const inputStyle = { borderColor: 'rgba(26,22,18,.3)' }
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -25,120 +25,42 @@ export function LoginPage() {
       await api.post('/auth/login', { email, password })
       await fetchUser()
       navigate('/profile')
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.error || 'Invalid credentials. Please try again.'
-      )
+    } catch (err) {
+      const message = axios.isAxiosError(err) ? err.response?.data?.error : undefined
+      setError(message || 'Invalid credentials. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div
-      className="relative min-h-screen flex items-center justify-center px-5"
-      style={{ background: ink, color: paper }}
-    >
-      {/* Animated mesh background */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0"
-        style={{
-          background:
-            'radial-gradient(ellipse 80% 60% at 60% 30%, rgba(120,60,255,0.10) 0%, transparent 70%), radial-gradient(ellipse 60% 50% at 20% 80%, rgba(255,77,77,0.09) 0%, transparent 60%), radial-gradient(ellipse 50% 70% at 80% 80%, rgba(0,200,180,0.07) 0%, transparent 60%)',
-        }}
-      />
-      {/* Subtle grid lines */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(243,239,229,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(243,239,229,.6) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
-      {/* Vignette */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0"
-        style={{
-          background:
-            'radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(11,10,9,.7) 100%)',
-        }}
-      />
-
-      {/* Back nav */}
-      <nav className="fixed inset-x-0 top-0 z-30 flex items-center justify-between px-5 py-4 sm:px-10">
-        <Link
-          to="/"
-          className="font-[family-name:var(--font-display)] text-sm tracking-wide"
-          style={{ color: paper }}
-        >
-          CC<span style={{ color: '#ff4d4d' }}>_</span>
+    <div className="min-h-screen" style={{ background: 'var(--news-bg)', color: 'var(--news-ink)' }}>
+      {/* masthead-style top bar */}
+      <nav className="flex items-center justify-between border-b px-5 py-4 sm:px-10" style={{ borderColor: 'var(--news-ink)' }}>
+        <Link to="/" className="font-[family-name:var(--font-display)] text-sm tracking-wide">
+          CC<span style={{ color: 'var(--news-red)' }}>_</span>
         </Link>
-        <Link
-          to="/events"
-          className="text-[10px] uppercase tracking-[0.18em] opacity-60 hover:opacity-100 transition-opacity"
-          style={{ color: paper }}
-        >
-          Events
+        <Link to="/events" className="text-[10px] uppercase tracking-[0.18em] opacity-60 transition-opacity hover:opacity-100">
+          ← Back to Events
         </Link>
       </nav>
 
-      {/* Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 28 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 w-full max-w-md"
-      >
-        {/* Glow blob */}
-        <div
-          className="absolute -top-24 left-1/2 -translate-x-1/2 h-48 w-48 rounded-full blur-3xl opacity-30 pointer-events-none"
-          style={{ background: '#ff4d4d' }}
-        />
-
-        <div
-          className="relative rounded-2xl border p-8 sm:p-10"
-          style={{
-            borderColor: 'rgba(243,239,229,.12)',
-            background: 'rgba(255,255,255,.04)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            boxShadow: '0 30px 80px -20px rgba(0,0,0,0.7)',
-          }}
-        >
-          {/* Header */}
+      <section className="mx-auto max-w-lg px-5 py-12 sm:px-10">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div className="mb-8 text-center">
-            <div
-              className="mb-3 text-[9px] uppercase tracking-[0.3em]"
-              style={{ color: 'rgba(243,239,229,.4)' }}
-            >
+            <div className="mb-2 text-[10px] uppercase tracking-[0.25em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
               § NMIMS Coding Club · Secure Access
             </div>
-            <h1
-              className="font-[family-name:var(--font-display)] leading-[0.9]"
-              style={{ fontSize: 'clamp(2rem,5vw,2.8rem)' }}
-            >
+            <h1 className="font-[family-name:var(--font-serif)] font-black leading-[0.9]" style={{ fontSize: 'clamp(2.2rem,6vw,3.2rem)' }}>
               Member Login
             </h1>
-            <p
-              className="mt-3 text-sm leading-relaxed"
-              style={{ color: 'rgba(243,239,229,.5)', fontFamily: 'var(--font-sans)' }}
-            >
+            <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed" style={{ color: 'rgba(26,22,18,.6)' }}>
               Sign in to access your profile, event registrations, and the online judge.
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="cc-email"
-                className="mb-1.5 block text-[10px] uppercase tracking-[0.18em]"
-                style={{ color: 'rgba(243,239,229,.5)' }}
-              >
-                Email Address
-              </label>
+          <form onSubmit={handleSubmit} className="space-y-5 border-t-2 pt-8" style={{ borderColor: 'var(--news-ink)' }}>
+            <Field label="Email Address">
               <input
                 id="cc-email"
                 type="email"
@@ -147,25 +69,12 @@ export function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-lg border bg-transparent px-4 py-3 text-sm outline-none transition-colors placeholder:opacity-30"
-                style={{
-                  borderColor: 'rgba(243,239,229,.18)',
-                  color: paper,
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#ff4d4d')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(243,239,229,.18)')}
+                className="w-full border bg-transparent px-3 py-2.5 text-sm outline-none focus:border-[var(--news-red)]"
+                style={inputStyle}
               />
-            </div>
+            </Field>
 
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="cc-password"
-                className="mb-1.5 block text-[10px] uppercase tracking-[0.18em]"
-                style={{ color: 'rgba(243,239,229,.5)' }}
-              >
-                Password
-              </label>
+            <Field label="Password">
               <div className="relative">
                 <input
                   id="cc-password"
@@ -175,47 +84,35 @@ export function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-lg border bg-transparent px-4 py-3 pr-12 text-sm outline-none transition-colors placeholder:opacity-30"
-                  style={{
-                    borderColor: 'rgba(243,239,229,.18)',
-                    color: paper,
-                  }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#ff4d4d')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(243,239,229,.18)')}
+                  className="w-full border bg-transparent px-3 py-2.5 pr-14 text-sm outline-none focus:border-[var(--news-red)]"
+                  style={inputStyle}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.1em] opacity-40 hover:opacity-80 transition-opacity"
-                  style={{ color: paper }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] uppercase tracking-[0.1em] opacity-50 hover:opacity-100"
                 >
                   {showPass ? 'Hide' : 'Show'}
                 </button>
               </div>
-            </div>
+            </Field>
 
-            {/* Error */}
             {error && (
               <motion.div
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-[11px] leading-relaxed"
-                style={{ color: '#ff8080' }}
+                className="border px-4 py-3 text-[11px] leading-relaxed"
+                style={{ borderColor: 'var(--news-red)', color: 'var(--news-red)', background: 'rgba(200,0,42,.05)' }}
               >
                 {error}
               </motion.div>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="cc-hover mt-2 w-full rounded-lg py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] transition-all disabled:opacity-50"
-              style={{
-                background: '#ff4d4d',
-                color: '#fff',
-                boxShadow: loading ? 'none' : '0 10px 40px -10px rgba(255,77,77,0.5)',
-              }}
+              className="cc-hover mt-2 w-full py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-white transition-opacity disabled:opacity-50"
+              style={{ background: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -228,18 +125,25 @@ export function LoginPage() {
             </button>
           </form>
 
-          {/* Footer note */}
-          <p
-            className="mt-6 text-center text-[10px] leading-relaxed"
-            style={{ color: 'rgba(243,239,229,.4)' }}
-          >
+          <p className="mt-6 text-center text-[10px] leading-relaxed" style={{ color: 'rgba(26,22,18,.5)' }}>
             New here?{' '}
-            <Link to="/signup" className="underline hover:text-white" style={{ color: '#ff4d4d' }}>
+            <Link to="/signup" className="underline" style={{ color: 'var(--news-red)' }}>
               Create an account →
             </Link>
           </p>
-        </div>
-      </motion.div>
+        </motion.div>
+      </section>
+    </div>
+  )
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-[10px] uppercase tracking-[0.15em]" style={{ color: 'rgba(26,22,18,.55)', fontFamily: 'var(--font-os)' }}>
+        {label}
+      </label>
+      {children}
     </div>
   )
 }
