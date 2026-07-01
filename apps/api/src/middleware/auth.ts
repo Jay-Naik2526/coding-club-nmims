@@ -33,3 +33,19 @@ export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction
     next();
   });
 };
+
+// Populates req.user if a valid session cookie is present, but never blocks
+// the request — used on public routes that need to show admins extra data
+// (e.g. draft/unpublished events) without requiring login for everyone else.
+export const optionalAuth = async (req: AuthRequest, _res: Response, next: NextFunction) => {
+  const token = req.cookies.token;
+  if (!token) return next();
+  try {
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const user = await User.findById(decoded.id);
+    if (user) req.user = user;
+  } catch {
+    // invalid/expired token — proceed as anonymous
+  }
+  next();
+};

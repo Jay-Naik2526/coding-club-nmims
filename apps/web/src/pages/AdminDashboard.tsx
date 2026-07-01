@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { useApp } from '@/store/useApp'
 import { motion, AnimatePresence } from 'framer-motion'
+import { QrScanner } from '@/components/QrScanner'
+import { ScoreEntry } from '@/components/ScoreEntry'
 
 interface AdminStats {
   users: number
@@ -27,7 +29,7 @@ interface FormFieldInput {
 export function AdminDashboardPage() {
   const queryClient = useQueryClient()
   const user = useApp((s) => s.user)
-  const [activeTab, setActiveTab] = useState<'stats' | 'events' | 'regs' | 'forms' | 'messages'>('stats')
+  const [activeTab, setActiveTab] = useState<'stats' | 'events' | 'regs' | 'forms' | 'messages' | 'scanner' | 'scores'>('stats')
 
   // Auth guard: Require admin role
   if (!user || user.role !== 'ADMIN') {
@@ -112,6 +114,8 @@ export function AdminDashboardPage() {
             { id: 'regs', label: '👥 Registrations' },
             { id: 'forms', label: '📝 Form Builder' },
             { id: 'messages', label: '📨 Contact Messages' },
+            { id: 'scanner', label: '🎫 Ticket Scanner' },
+            { id: 'scores', label: '🏆 Live Scores' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -136,6 +140,8 @@ export function AdminDashboardPage() {
           {activeTab === 'events' && <EventsCrudView events={events} isLoading={eventsLoading} queryClient={queryClient} />}
           {activeTab === 'regs' && <RegistrationsView registrations={registrations} isLoading={regsLoading} events={events} />}
           {activeTab === 'forms' && <FormBuilderView forms={forms} isLoading={formsLoading} events={events} queryClient={queryClient} />}
+          {activeTab === 'scanner' && <QrScanner />}
+          {activeTab === 'scores' && <ScoreEntry events={events} />}
           {activeTab === 'messages' && <MessagesView messages={messages} isLoading={messagesLoading} />}
         </div>
       </section>
@@ -216,7 +222,8 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
   const [registrationDeadline, setRegistrationDeadline] = useState('')
   const [difficulty, setDifficulty] = useState(3)
   const [bannerUrl, setBannerUrl] = useState('')
-  
+  const [isPublished, setIsPublished] = useState(true)
+
   const [formError, setFormError] = useState('')
   const [formSuccess, setFormSuccess] = useState('')
 
@@ -234,6 +241,7 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
     setRegistrationDeadline('')
     setDifficulty(3)
     setBannerUrl('')
+    setIsPublished(true)
     setFormError('')
     setFormSuccess('')
     setFormOpen(true)
@@ -253,6 +261,7 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
     setRegistrationDeadline(new Date(ev.registrationDeadline).toISOString().slice(0, 16))
     setDifficulty(ev.difficulty)
     setBannerUrl(ev.bannerUrl || '')
+    setIsPublished(ev.isPublished !== false)
     setFormError('')
     setFormSuccess('')
     setFormOpen(true)
@@ -275,7 +284,8 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
       endDate: new Date(endDate),
       registrationDeadline: new Date(registrationDeadline),
       difficulty,
-      bannerUrl: bannerUrl || undefined
+      bannerUrl: bannerUrl || undefined,
+      isPublished,
     }
 
     try {
@@ -399,6 +409,13 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
                 <input value={bannerUrl} onChange={e => setBannerUrl(e.target.value)} className="border bg-transparent p-2 text-sm outline-none focus:border-[var(--news-red)]" style={{ borderColor: 'rgba(26,22,18,.3)' }} />
               </div>
 
+              <label className="flex items-center gap-2 sm:col-span-2 cursor-pointer border p-3" style={{ borderColor: isPublished ? 'rgba(26,22,18,.18)' : 'var(--news-red)', background: isPublished ? 'transparent' : 'rgba(200,0,42,0.04)' }}>
+                <input type="checkbox" checked={isPublished} onChange={e => setIsPublished(e.target.checked)} className="h-4 w-4 accent-[var(--news-red)]" />
+                <span className="text-[10px] uppercase tracking-[0.1em]">
+                  {isPublished ? 'Published — visible on the public site' : 'Draft — hidden from everyone except admins'}
+                </span>
+              </label>
+
               <div className="flex gap-2 sm:col-span-2">
                 <button type="submit" className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white bg-[var(--news-ink)]" style={{ fontFamily: 'var(--font-os)' }}>
                   {editingEvent ? 'Save Changes' : 'Publish Event'}
@@ -432,7 +449,14 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
             <tbody>
               {events.map((ev) => (
                 <tr key={ev._id} className="border-b hover:bg-black/[0.01]" style={{ borderColor: 'rgba(26,22,18,.1)' }}>
-                  <td className="p-3 font-[family-name:var(--font-serif)] font-bold text-base">{ev.title}</td>
+                  <td className="p-3 font-[family-name:var(--font-serif)] font-bold text-base">
+                    {ev.title}
+                    {ev.isPublished === false && (
+                      <span className="ml-2 border border-[var(--news-red)] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-[var(--news-red)]" style={{ fontFamily: 'var(--font-os)' }}>
+                        Draft
+                      </span>
+                    )}
+                  </td>
                   <td className="p-3 text-xs uppercase font-bold">{ev.department}</td>
                   <td className="p-3 text-xs">{ev.type}</td>
                   <td className="p-3 text-xs uppercase tracking-wider">{ev.status}</td>

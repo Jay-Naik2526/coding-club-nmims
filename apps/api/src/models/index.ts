@@ -9,3 +9,4 @@ export { Form, FormResponse } from './Form.js';
 export { Badge, UserBadge } from './Badge.js';
 export { default as Certificate } from './Certificate.js';
 export { default as Message } from './Message.js';
+export { default as Score } from './Score.js';

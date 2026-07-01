@@ -7,6 +7,11 @@ export interface IUser extends Document {
   department: 'dsa' | 'web' | 'sec';
   year: number;
   branch: string;
+  /** e.g. "B.Tech", "MBA Tech" — collected at signup. Optional in the schema
+   *  (so existing/admin/seeded accounts never fail validation) but required
+   *  by the /auth/signup route for new accounts. */
+  course?: string;
+  sapId?: string;
   githubHandle?: string;
   xp: number;
   role: 'STUDENT' | 'ADMIN';
@@ -21,6 +26,8 @@ const UserSchema = new Schema<IUser>({
   department: { type: String, enum: ['dsa', 'web', 'sec'], required: true },
   year: { type: Number, required: true },
   branch: { type: String, required: true },
+  course: { type: String },
+  sapId: { type: String },
   githubHandle: { type: String },
   xp: { type: Number, default: 0 },
   role: { type: String, enum: ['STUDENT', 'ADMIN'], default: 'STUDENT' },

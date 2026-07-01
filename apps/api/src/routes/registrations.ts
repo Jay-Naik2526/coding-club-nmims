@@ -1,10 +1,23 @@
 import express from 'express';
 import { Resend } from 'resend';
+import QRCode from 'qrcode';
 import { Event, User, Registration, TeamMember } from '../models/index.js';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import { generateTicketPdf } from '../utils/ticket.js';
 
 const router = express.Router();
+
+// Shared ownership check: the registration leader, a team member on it, or
+// any admin may view/download the pass. Used by both /ticket and /qr.
+const canAccessRegistration = async (registration: any, user: any): Promise<boolean> => {
+  if (user.role === 'ADMIN') return true;
+  if (String(registration.userId) === String(user._id)) return true;
+  if (registration.teamName) {
+    const memberRecord = await TeamMember.findOne({ registrationId: registration._id, userId: user._id });
+    if (memberRecord) return true;
+  }
+  return false;
+};
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -52,7 +65,7 @@ router.post('/:slug/register', requireAuth, async (req: AuthRequest, res) => {
 
   try {
     const event = await Event.findOne({ slug });
-    if (!event) {
+    if (!event || event.isPublished === false) {
       return res.status(404).json({ error: 'Event not found' });
     }
 
@@ -208,21 +221,7 @@ router.get('/:id/ticket', requireAuth, async (req: AuthRequest, res) => {
       return res.status(404).json({ error: 'Registration not found' });
     }
 
-    // Check if the requesting user belongs to this registration (leader or member)
-    const isLeader = String(registration.userId) === String(req.user._id);
-    let isMember = false;
-
-    if (registration.teamName) {
-      const memberRecord = await TeamMember.findOne({
-        registrationId: registration._id,
-        userId: req.user._id,
-      });
-      if (memberRecord) {
-        isMember = true;
-      }
-    }
-
-    if (!isLeader && !isMember && req.user.role !== 'ADMIN') {
+    if (!(await canAccessRegistration(registration, req.user))) {
       return res.status(403).json({ error: 'Access denied: You do not own this entry pass' });
     }
 
@@ -248,6 +247,58 @@ router.get('/:id/ticket', requireAuth, async (req: AuthRequest, res) => {
     res.send(pdfBuffer);
   } catch (err) {
     res.status(500).json({ error: 'Failed to generate ticket download' });
+  }
+});
+
+// On-screen ticket data: the same QR payload embedded in the PDF, rendered
+// as a PNG data URL, plus enough context to render a ticket page without a
+// second round trip. Used since we don't have a production email service yet
+// — the student opens this page directly instead of the emailed PDF.
+router.get('/:id/qr', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const registration = await Registration.findById(req.params.id);
+    if (!registration) {
+      return res.status(404).json({ error: 'Registration not found' });
+    }
+
+    if (!(await canAccessRegistration(registration, req.user))) {
+      return res.status(403).json({ error: 'Access denied: You do not own this entry pass' });
+    }
+
+    const event = await Event.findById(registration.eventId);
+    const owner = await User.findById(registration.userId);
+    if (!event || !owner) {
+      return res.status(404).json({ error: 'Event or User records not found' });
+    }
+
+    let teamMembers: any[] = [];
+    if (registration.teamName) {
+      const mappings = await TeamMember.find({ registrationId: registration._id });
+      const userIds = mappings.map((m) => m.userId);
+      teamMembers = await User.find({ _id: { $in: userIds } }).select('name email');
+    }
+
+    const qrPayload = JSON.stringify({
+      registrationId: registration._id,
+      userId: owner._id,
+      eventSlug: event.slug,
+    });
+    const dataUrl = await QRCode.toDataURL(qrPayload, { margin: 1, scale: 6 });
+
+    res.json({
+      dataUrl,
+      registration: {
+        id: registration._id,
+        teamName: registration.teamName,
+        attended: registration.attended ?? false,
+        attendedAt: registration.attendedAt ?? null,
+      },
+      event: { title: event.title, slug: event.slug, startDate: event.startDate, department: event.department },
+      owner: { name: owner.name, email: owner.email },
+      teamMembers: teamMembers.map((m) => ({ name: m.name, email: m.email })),
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to generate ticket QR code' });
   }
 });
 

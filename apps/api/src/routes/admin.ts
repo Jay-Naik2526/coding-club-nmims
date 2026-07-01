@@ -1,6 +1,6 @@
 import express from 'express';
 import { requireAdmin } from '../middleware/auth.js';
-import { Event, User, Registration, TeamMember, Problem, Submission, Form, FormResponse, Message } from '../models/index.js';
+import { Event, User, Registration, TeamMember, Problem, Submission, Form, FormResponse, Message, Score } from '../models/index.js';
 
 const router = express.Router();
 
@@ -202,6 +202,119 @@ router.get('/messages', requireAdmin, async (req, res) => {
     res.json(messages);
   } catch (err) {
     res.status(500).json({ error: 'Failed to retrieve contact queries.' });
+  }
+});
+
+// POST /admin/scan - Door check-in. Body: { payload } where payload is the
+// raw JSON string decoded from a ticket QR code (see utils/ticket.ts /
+// routes/registrations.ts /:id/qr — both embed the same shape). Idempotent:
+// re-scanning an already-checked-in ticket returns its existing check-in
+// time instead of erroring, so a nervous double-scan at the door is harmless.
+router.post('/scan', requireAdmin, async (req, res) => {
+  const { payload } = req.body;
+  if (!payload) {
+    return res.status(400).json({ error: 'Missing QR payload' });
+  }
+
+  let parsed: { registrationId?: string; userId?: string; eventSlug?: string };
+  try {
+    parsed = JSON.parse(payload);
+  } catch {
+    return res.status(400).json({ error: 'Unrecognized QR code — not a Coding Club ticket' });
+  }
+
+  if (!parsed.registrationId) {
+    return res.status(400).json({ error: 'QR code is missing a registration reference' });
+  }
+
+  try {
+    const registration = await Registration.findById(parsed.registrationId);
+    if (!registration) {
+      return res.status(404).json({ error: 'No matching registration — ticket may be invalid or revoked' });
+    }
+
+    const event = await Event.findById(registration.eventId);
+    const owner = await User.findById(registration.userId);
+
+    let teamMembers: { name: string; email: string }[] = [];
+    if (registration.teamName) {
+      const mappings = await TeamMember.find({ registrationId: registration._id });
+      const userIds = mappings.map((m) => m.userId);
+      const users = await User.find({ _id: { $in: userIds } }).select('name email');
+      teamMembers = users.map((u) => ({ name: u.name, email: u.email }));
+    }
+
+    const wasAlreadyCheckedIn = registration.attended;
+    if (!wasAlreadyCheckedIn) {
+      registration.attended = true;
+      registration.attendedAt = new Date();
+      await registration.save();
+    }
+
+    res.json({
+      alreadyCheckedIn: wasAlreadyCheckedIn,
+      checkedInAt: registration.attendedAt,
+      registration: { id: registration._id, teamName: registration.teamName },
+      event: event ? { title: event.title, slug: event.slug, department: event.department } : null,
+      owner: owner ? { name: owner.name, email: owner.email } : null,
+      teamMembers,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to process check-in scan' });
+  }
+});
+
+// GET /admin/scores/:eventId - Live-judging score sheet for an event: every
+// registration (solo entrant or team) alongside whatever round scores exist
+// so far. Used to render the admin's round-by-round score entry table.
+router.get('/scores/:eventId', requireAdmin, async (req, res) => {
+  try {
+    const registrations = await Registration.find({ eventId: req.params.eventId }).populate('userId', 'name email');
+    const scores = await Score.find({ eventId: req.params.eventId });
+
+    const rows = await Promise.all(
+      registrations.map(async (reg) => {
+        let teamMembers: { name: string; email: string }[] = [];
+        if (reg.teamName) {
+          const mappings = await TeamMember.find({ registrationId: reg._id });
+          const users = await User.find({ _id: { $in: mappings.map((m) => m.userId) } }).select('name email');
+          teamMembers = users.map((u) => ({ name: u.name, email: u.email }));
+        }
+        const regScores = scores.filter((s) => String(s.registrationId) === String(reg._id));
+        return {
+          registrationId: reg._id,
+          displayName: reg.teamName || (reg.userId as any)?.name || 'Unknown',
+          teamName: reg.teamName,
+          teamMembers,
+          scores: regScores.map((s) => ({ round: s.round, label: s.label, points: s.points })),
+          total: regScores.reduce((sum, s) => sum + s.points, 0),
+        };
+      })
+    );
+
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve score sheet' });
+  }
+});
+
+// POST /admin/scores - Upsert one round's score for one registration.
+// Body: { eventId, registrationId, round, label?, points }
+router.post('/scores', requireAdmin, async (req, res) => {
+  const { eventId, registrationId, round, label, points } = req.body;
+  if (!eventId || !registrationId || round === undefined || points === undefined) {
+    return res.status(400).json({ error: 'eventId, registrationId, round, and points are required' });
+  }
+
+  try {
+    const score = await Score.findOneAndUpdate(
+      { registrationId, round: Number(round) },
+      { $set: { eventId, label: label || '', points: Number(points), updatedAt: new Date() } },
+      { upsert: true, new: true }
+    );
+    res.json(score);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message || 'Failed to save score' });
   }
 });
 

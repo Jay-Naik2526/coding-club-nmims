@@ -23,6 +23,8 @@ interface EventStandingsItem {
   score: number
   lastSolvedAt: string
   solvedCount: number
+  /** Present only for manually-judged events (round scores entered by an admin). */
+  rounds?: { round: number; label: string; points: number }[]
 }
 
 export function LeaderboardPage() {
@@ -60,7 +62,7 @@ export function LeaderboardPage() {
   })
 
   // Query specific event standings
-  const { data: eventData, isLoading: eventLoading } = useQuery<{ type: 'SOLO' | 'TEAM'; standings: EventStandingsItem[] }>({
+  const { data: eventData, isLoading: eventLoading } = useQuery<{ type: 'SOLO' | 'TEAM'; manual?: boolean; standings: EventStandingsItem[] }>({
     queryKey: ['eventLeaderboard', selectedEventSlug],
     queryFn: async () => {
       const res = await api.get(`/leaderboard/event/${selectedEventSlug}`)
@@ -312,7 +314,45 @@ export function LeaderboardPage() {
                 </div>
               ) : (
                 <div className="overflow-x-auto border" style={{ borderColor: 'rgba(26,22,18,.18)' }}>
-                  {eventData.type === 'SOLO' ? (
+                  {eventData.manual ? (
+                    <table className="w-full border-collapse text-left text-sm">
+                      <thead>
+                        <tr className="border-b" style={{ borderColor: 'rgba(26,22,18,.18)', background: 'rgba(26,22,18,.02)' }}>
+                          <th className="p-3 text-[10px] uppercase tracking-[0.12em]" style={{ fontFamily: 'var(--font-os)' }}>Rank</th>
+                          <th className="p-3 text-[10px] uppercase tracking-[0.12em]" style={{ fontFamily: 'var(--font-os)' }}>Participant</th>
+                          <th className="p-3 text-[10px] uppercase tracking-[0.12em]" style={{ fontFamily: 'var(--font-os)' }}>Rounds</th>
+                          <th className="p-3 text-[10px] uppercase tracking-[0.12em] text-right" style={{ fontFamily: 'var(--font-os)' }}>Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {eventData.standings.map((item, index) => {
+                          const rank = index + 1
+                          const isTopThree = rank <= 3
+                          const rankText = rank === 1 ? '1st' : rank === 2 ? '2nd' : rank === 3 ? '3rd' : `${rank}`
+                          const name = item.teamName || item.user?.name || item.leader?.name || 'Unknown'
+                          return (
+                            <tr key={item.registrationId || index} className="border-b" style={{ borderColor: 'rgba(26,22,18,.1)' }}>
+                              <td className="p-3 font-bold" style={{ color: isTopThree ? 'var(--news-red)' : undefined }}>{rankText}</td>
+                              <td className="p-3">
+                                <div className="font-[family-name:var(--font-serif)] font-bold">{name}</div>
+                                {item.members && item.members.length > 0 && (
+                                  <div className="text-[10px] opacity-50">+{item.members.length} member(s)</div>
+                                )}
+                              </td>
+                              <td className="p-3 text-xs">
+                                {(item.rounds || []).map((r) => (
+                                  <span key={r.round} className="mr-2 inline-block border px-1.5 py-0.5" style={{ borderColor: 'rgba(26,22,18,.15)' }}>
+                                    R{r.round}: {r.points}
+                                  </span>
+                                ))}
+                              </td>
+                              <td className="p-3 text-right font-black" style={{ fontFamily: 'var(--font-os)', fontSize: '15px' }}>{item.score}</td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  ) : eventData.type === 'SOLO' ? (
                     <table className="w-full border-collapse text-left text-sm">
                       <thead>
                         <tr className="border-b" style={{ borderColor: 'rgba(26,22,18,.18)', background: 'rgba(26,22,18,.02)' }}>

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { api } from '@/lib/api'
 import { useApp } from '@/store/useApp'
 
@@ -186,15 +187,24 @@ export function ProfilePage() {
                           </div>
                         )}
                       </div>
-                      <a
-                        href={`${import.meta.env.VITE_API_URL || 'http://localhost:7860'}/registrations/${reg._id}/ticket`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 text-[9px] uppercase tracking-[0.1em] font-bold text-white bg-[var(--news-ink)] hover:bg-black"
-                        style={{ fontFamily: 'var(--font-os)' }}
-                      >
-                        🎟 Download Pass
-                      </a>
+                      <div className="flex gap-2">
+                        <Link
+                          to={`/ticket/${reg._id}`}
+                          className="px-3 py-1.5 text-[9px] uppercase tracking-[0.1em] font-bold text-white"
+                          style={{ fontFamily: 'var(--font-os)', background: 'var(--news-red)' }}
+                        >
+                          📱 View Ticket
+                        </Link>
+                        <a
+                          href={`${import.meta.env.VITE_API_URL || 'http://localhost:7860'}/registrations/${reg._id}/ticket`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 text-[9px] uppercase tracking-[0.1em] font-bold text-white bg-[var(--news-ink)] hover:bg-black"
+                          style={{ fontFamily: 'var(--font-os)' }}
+                        >
+                          🎟 PDF
+                        </a>
+                      </div>
                     </div>
                   ))}
                 </div>

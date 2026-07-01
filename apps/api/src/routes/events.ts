@@ -1,6 +1,6 @@
 import express from 'express';
 import { Event, Problem } from '../models/index.js';
-import { requireAdmin } from '../middleware/auth.js';
+import { requireAdmin, optionalAuth, AuthRequest } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -13,10 +13,13 @@ const checkEventStatus = (event: any) => {
   return doc;
 };
 
-// Get all events
-router.get('/', async (req, res) => {
+// Get all events. Draft (isPublished: false) events are only visible to admins
+// — this is how an event can exist "ready to go" without being announced yet.
+router.get('/', optionalAuth, async (req: AuthRequest, res) => {
   try {
-    const events = await Event.find().sort({ startDate: -1 });
+    const isAdmin = req.user?.role === 'ADMIN';
+    const query = isAdmin ? {} : { isPublished: { $ne: false } };
+    const events = await Event.find(query).sort({ startDate: -1 });
     const processed = events.map(checkEventStatus);
     res.json(processed);
   } catch (err) {
@@ -24,11 +27,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get event by slug
-router.get('/:slug', async (req, res) => {
+// Get event by slug. Drafts 404 for non-admins so the URL can't be guessed.
+router.get('/:slug', optionalAuth, async (req: AuthRequest, res) => {
   try {
     const event = await Event.findOne({ slug: req.params.slug });
-    if (!event) {
+    const isAdmin = req.user?.role === 'ADMIN';
+    if (!event || (event.isPublished === false && !isAdmin)) {
       return res.status(404).json({ error: 'Event not found' });
     }
     res.json(checkEventStatus(event));
@@ -38,10 +42,11 @@ router.get('/:slug', async (req, res) => {
 });
 
 // Get all problems for an event slug (hides secret test cases)
-router.get('/:slug/problems', async (req, res) => {
+router.get('/:slug/problems', optionalAuth, async (req: AuthRequest, res) => {
   try {
     const event = await Event.findOne({ slug: req.params.slug });
-    if (!event) {
+    const isAdmin = req.user?.role === 'ADMIN';
+    if (!event || (event.isPublished === false && !isAdmin)) {
       return res.status(404).json({ error: 'Event not found' });
     }
     const problems = await Problem.find({ eventId: event._id }).select('-testCases');

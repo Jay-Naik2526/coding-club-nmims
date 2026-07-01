@@ -15,6 +15,9 @@ export interface IEvent extends Document {
   difficulty: number;
   bannerUrl?: string;
   createdAt: Date;
+  /** Draft events exist in the DB (so the site is "ready") but are hidden
+   *  from every public route until an admin flips this to true. */
+  isPublished: boolean;
 }
 
 const EventSchema = new Schema<IEvent>({
@@ -32,6 +35,7 @@ const EventSchema = new Schema<IEvent>({
   difficulty: { type: Number, required: true, min: 1, max: 5 },
   bannerUrl: { type: String },
   createdAt: { type: Date, default: Date.now },
+  isPublished: { type: Boolean, default: true },
 });
 
 export const Event = mongoose.model<IEvent>('Event', EventSchema);

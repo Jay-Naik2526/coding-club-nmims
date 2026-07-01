@@ -1,6 +1,6 @@
 import express from 'express';
 import { requireAuth } from '../middleware/auth.js';
-import { Event, User, Registration, TeamMember, Problem, Submission, CTFChallenge, CTFSolve } from '../models/index.js';
+import { Event, User, Registration, TeamMember, Problem, Submission, CTFChallenge, CTFSolve, Score } from '../models/index.js';
 
 const router = express.Router();
 
@@ -40,6 +40,45 @@ router.get('/event/:eventIdOrSlug', async (req, res) => {
 
     // 2. Fetch all registered entities
     const registrations = await Registration.find({ eventId: event._id }).populate('userId', 'name email department branch year githubHandle');
+
+    // 2b. Manually-judged events (e.g. PromptCraft Arena): if an admin has
+    // entered any round scores for this event via /admin/scores, those are
+    // the source of truth — skip the code/CTF-derived calculation entirely.
+    const manualScores = await Score.find({ eventId: event._id });
+    if (manualScores.length > 0) {
+      const byRegistration: Record<string, { registrationId: string; rounds: { round: number; label: string; points: number }[]; score: number }> = {};
+      for (const s of manualScores) {
+        const key = String(s.registrationId);
+        if (!byRegistration[key]) byRegistration[key] = { registrationId: key, rounds: [], score: 0 };
+        byRegistration[key].rounds.push({ round: s.round, label: s.label, points: s.points });
+        byRegistration[key].score += s.points;
+      }
+
+      const standings = await Promise.all(
+        registrations
+          .filter((reg) => byRegistration[String(reg._id)])
+          .map(async (reg) => {
+            const entry = byRegistration[String(reg._id)];
+            let members: any[] = [];
+            if (reg.teamName) {
+              const mappings = await TeamMember.find({ registrationId: reg._id }).populate('userId', 'name email department branch year githubHandle');
+              members = mappings.map((m) => m.userId);
+            }
+            return {
+              registrationId: entry.registrationId,
+              teamName: reg.teamName,
+              user: reg.teamName ? undefined : reg.userId,
+              leader: reg.teamName ? reg.userId : undefined,
+              members,
+              rounds: entry.rounds.sort((a, b) => a.round - b.round),
+              score: entry.score,
+            };
+          })
+      );
+
+      standings.sort((a, b) => b.score - a.score);
+      return res.json({ type: event.type, manual: true, standings });
+    }
 
     // 3. SOLO event leaderboard calculation
     if (event.type === 'SOLO') {

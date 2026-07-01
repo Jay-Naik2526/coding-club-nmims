@@ -231,10 +231,12 @@ export function LoginPage() {
           {/* Footer note */}
           <p
             className="mt-6 text-center text-[10px] leading-relaxed"
-            style={{ color: 'rgba(243,239,229,.3)' }}
+            style={{ color: 'rgba(243,239,229,.4)' }}
           >
-            Access is limited to registered club members.<br />
-            Contact a club coordinator if you need an account.
+            New here?{' '}
+            <Link to="/signup" className="underline hover:text-white" style={{ color: '#ff4d4d' }}>
+              Create an account →
+            </Link>
           </p>
         </div>
       </motion.div>
