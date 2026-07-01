@@ -9,10 +9,21 @@ import { downloadTicketPdf } from '@/lib/download'
 interface TicketData {
   dataUrl: string
   registration: { id: string; teamName?: string; attended: boolean; attendedAt: string | null }
-  event: { title: string; slug: string; startDate: string; department: DeptId }
+  event: {
+    title: string
+    slug: string
+    startDate: string
+    endDate: string
+    registrationDeadline: string
+    status: string
+    department: DeptId
+  }
   owner: { name: string; email: string }
   teamMembers: { name: string; email: string }[]
 }
+
+const dateFmt = new Intl.DateTimeFormat('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+const timeFmt = new Intl.DateTimeFormat('en-IN', { hour: '2-digit', minute: '2-digit' })
 
 export function TicketPage() {
   const { id } = useParams()
@@ -111,12 +122,30 @@ export function TicketPage() {
           </p>
         </div>
 
+        {/* Schedule */}
+        <div className="border-t px-6 py-4" style={{ borderColor: 'rgba(26,22,18,.15)' }}>
+          <div className="mb-2 text-center text-[9px] uppercase tracking-[0.15em]" style={{ color: 'rgba(26,22,18,.45)', fontFamily: 'var(--font-os)' }}>
+            When
+          </div>
+          <div className="flex items-center justify-center gap-4 text-center">
+            <div>
+              <div className="font-[family-name:var(--font-serif)] text-base font-bold">{dateFmt.format(new Date(event.startDate))}</div>
+              <div className="text-[11px]" style={{ color: 'rgba(26,22,18,.6)' }}>
+                {timeFmt.format(new Date(event.startDate))} – {timeFmt.format(new Date(event.endDate))}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="border-t px-6 py-3 text-center text-[9px] uppercase tracking-[0.1em]" style={{ borderColor: 'rgba(26,22,18,.15)', color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
           Ticket ID: {registration.id}
         </div>
       </motion.div>
 
-      <div className="mt-6 flex items-center justify-center gap-5 text-[10px] uppercase tracking-[0.1em]">
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-[10px] uppercase tracking-[0.1em]">
+        <Link to={`/events/${event.slug}`} style={{ color: 'var(--news-ink)' }} className="underline hover:text-[var(--news-red)]">
+          Event details
+        </Link>
         <button
           onClick={() => downloadTicketPdf(registration.id, event.slug)}
           style={{ color: 'var(--news-ink)' }}

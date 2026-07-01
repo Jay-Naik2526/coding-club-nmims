@@ -293,7 +293,15 @@ router.get('/:id/qr', requireAuth, async (req: AuthRequest, res) => {
         attended: registration.attended ?? false,
         attendedAt: registration.attendedAt ?? null,
       },
-      event: { title: event.title, slug: event.slug, startDate: event.startDate, department: event.department },
+      event: {
+        title: event.title,
+        slug: event.slug,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        registrationDeadline: event.registrationDeadline,
+        status: event.status,
+        department: event.department,
+      },
       owner: { name: owner.name, email: owner.email },
       teamMembers: teamMembers.map((m) => ({ name: m.name, email: m.email })),
     });
