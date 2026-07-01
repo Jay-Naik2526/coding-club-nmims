@@ -44,9 +44,9 @@ export function NewsLayout() {
         </div>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <button onClick={() => navigate('/events')} className="flex items-center gap-4 text-left">
-            <img src="/logo.png" alt="Coding Club Logo" className="h-14 w-14 object-contain border" style={{ borderColor: 'var(--news-ink)' }} />
+            <img src="/logo.png" alt="Coding Club Logo" className="h-20 w-20 object-contain" />
             <div>
-              <div className="font-[family-name:var(--font-serif)] font-black leading-[0.85] tracking-[-0.02em]" style={{ fontSize: 'clamp(2.2rem,6vw,5rem)' }}>
+              <div className="font-[family-name:var(--font-serif)] font-black leading-[0.85] tracking-[-0.02em]" style={{ fontSize: 'clamp(2rem,5.5vw,4.5rem)' }}>
                 THE
                 <br />
                 CODING CLUB

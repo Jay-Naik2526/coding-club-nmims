@@ -308,11 +308,6 @@ export function EventDetailPage() {
               </div>
             )}
 
-            {(ev.department === 'dsa' || ev.department === 'web') && (
-              <button onClick={() => navigate(`/ide?event=${ev.slug}`)} className="cc-hover mt-2 w-full border py-3 text-[11px] uppercase tracking-[0.12em]" style={{ borderColor: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}>
-                OPEN JUDGE IDE →
-              </button>
-            )}
             {ev.department === 'sec' && (
               <button onClick={() => navigate(`/ide/ctf/${ev.slug}`)} className="cc-hover mt-2 w-full border py-3 text-[11px] uppercase tracking-[0.12em]" style={{ borderColor: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}>
                 ENTER CTF →
