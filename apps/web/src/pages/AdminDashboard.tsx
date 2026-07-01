@@ -5,6 +5,7 @@ import { useApp } from '@/store/useApp'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QrScanner } from '@/components/QrScanner'
 import { ScoreEntry } from '@/components/ScoreEntry'
+import { UsersView } from '@/components/UsersView'
 
 interface AdminStats {
   users: number
@@ -29,7 +30,7 @@ interface FormFieldInput {
 export function AdminDashboardPage() {
   const queryClient = useQueryClient()
   const user = useApp((s) => s.user)
-  const [activeTab, setActiveTab] = useState<'stats' | 'events' | 'regs' | 'forms' | 'messages' | 'scanner' | 'scores'>('stats')
+  const [activeTab, setActiveTab] = useState<'stats' | 'events' | 'regs' | 'forms' | 'messages' | 'scanner' | 'scores' | 'users'>('stats')
 
   // Auth guard: Require admin role
   if (!user || user.role !== 'ADMIN') {
@@ -94,6 +95,15 @@ export function AdminDashboardPage() {
     }
   })
 
+  // Users
+  const { data: users = [], isLoading: usersLoading } = useQuery<any[]>({
+    queryKey: ['adminUsers'],
+    queryFn: async () => {
+      const res = await api.get('/admin/users')
+      return res.data
+    }
+  })
+
   return (
     <>
       <header className="mx-auto max-w-5xl px-5 pb-6 pt-10 text-center sm:px-10">
@@ -116,6 +126,7 @@ export function AdminDashboardPage() {
             { id: 'messages', label: '📨 Contact Messages' },
             { id: 'scanner', label: '🎫 Ticket Scanner' },
             { id: 'scores', label: '🏆 Live Scores' },
+            { id: 'users', label: '🧑‍🎓 Users' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -143,6 +154,7 @@ export function AdminDashboardPage() {
           {activeTab === 'scanner' && <QrScanner />}
           {activeTab === 'scores' && <ScoreEntry events={events} />}
           {activeTab === 'messages' && <MessagesView messages={messages} isLoading={messagesLoading} />}
+          {activeTab === 'users' && <UsersView users={users} isLoading={usersLoading} queryClient={queryClient} currentUserId={user._id} />}
         </div>
       </section>
     </>

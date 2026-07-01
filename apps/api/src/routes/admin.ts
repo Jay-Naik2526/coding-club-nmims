@@ -1,6 +1,7 @@
 import express from 'express';
-import { requireAdmin } from '../middleware/auth.js';
-import { Event, User, Registration, TeamMember, Problem, Submission, Form, FormResponse, Message, Score } from '../models/index.js';
+import bcrypt from 'bcryptjs';
+import { requireAdmin, AuthRequest } from '../middleware/auth.js';
+import { Event, User, Registration, TeamMember, Problem, Submission, Form, FormResponse, Message, Score, UserBadge } from '../models/index.js';
 
 const router = express.Router();
 
@@ -338,5 +339,106 @@ router.post('/scores', requireAdmin, async (req, res) => {
     res.status(500).json({ error: (err as Error).message || 'Failed to save score' });
   }
 });
+
+// ── User management (CRUD) ─────────────────────────────────────────────────
+// Used by the admin "Users" page — students appear on the public leaderboard,
+// so admins need a way to correct or remove accounts from here.
+
+// GET /admin/users - list every user (never includes passwordHash)
+router.get('/users', requireAdmin, async (req, res) => {
+  try {
+    const users = await User.find({}).select('-passwordHash').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve users' });
+  }
+});
+
+// Admin-only: create a user directly (e.g. add a member without self-signup)
+router.post('/users', requireAdmin, async (req, res) => {
+  const { name, email, password, department, year, branch, course, sapId, role } = req.body;
+  if (!name || !email || !password || !department || !year || !branch) {
+    return res.status(400).json({ error: 'name, email, password, department, year, and branch are required' });
+  }
+  try {
+    const existing = await User.findOne({ email: String(email).toLowerCase().trim() });
+    if (existing) {
+      return res.status(409).json({ error: 'A user with this email already exists' });
+    }
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      name: String(name).trim(),
+      email: String(email).toLowerCase().trim(),
+      passwordHash,
+      department,
+      year: Number(year),
+      branch,
+      course,
+      sapId,
+      role: role === 'ADMIN' ? 'ADMIN' : 'STUDENT',
+    });
+    const { passwordHash: _omit, ...safeUser } = user.toObject();
+    res.status(201).json(safeUser);
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message || 'Failed to create user' });
+  }
+});
+
+// Admin-only: update a user's profile/role/xp. Exposed as both PUT and a
+// POST alias — POST is a CORS "simple" method, so the browser sends no
+// preflight (HF Spaces' proxy mishandles preflights). See lib/api.ts.
+const updateUser: express.RequestHandler = async (req, res) => {
+  try {
+    const { name, email, department, year, branch, course, sapId, role, xp, githubHandle } = req.body;
+    const update: Record<string, unknown> = {};
+    if (name !== undefined) update.name = name;
+    if (email !== undefined) update.email = String(email).toLowerCase().trim();
+    if (department !== undefined) update.department = department;
+    if (year !== undefined) update.year = Number(year);
+    if (branch !== undefined) update.branch = branch;
+    if (course !== undefined) update.course = course;
+    if (sapId !== undefined) update.sapId = sapId;
+    if (role !== undefined) update.role = role;
+    if (xp !== undefined) update.xp = Number(xp);
+    if (githubHandle !== undefined) update.githubHandle = githubHandle;
+
+    const user = await User.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true }).select('-passwordHash');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message || 'Failed to update user' });
+  }
+};
+router.put('/users/:id', requireAdmin, updateUser);
+router.post('/users/:id/update', requireAdmin, updateUser);
+
+// Admin-only: delete a user. Cascades their own registrations, team-member
+// rows, and badges — but leaves historical Submission/CTFSolve/FormResponse
+// records alone since those reference other students' shared leaderboard
+// data too. Blocked from deleting your own logged-in account, so an admin
+// can never lock themselves out.
+const deleteUser: express.RequestHandler = async (req: AuthRequest, res) => {
+  try {
+    if (String(req.params.id) === String(req.user?._id)) {
+      return res.status(400).json({ error: 'You cannot delete your own account while logged in as it' });
+    }
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const ownRegistrations = await Registration.find({ userId: user._id });
+    await Registration.deleteMany({ userId: user._id });
+    await TeamMember.deleteMany({ userId: user._id });
+    await Score.deleteMany({ registrationId: { $in: ownRegistrations.map((r) => r._id) } });
+    await UserBadge.deleteMany({ userId: user._id });
+    res.json({ message: 'User removed successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+};
+router.delete('/users/:id', requireAdmin, deleteUser);
+router.post('/users/:id/delete', requireAdmin, deleteUser);
 
 export default router;
