@@ -145,7 +145,7 @@ Frontend and backend are both implemented. Recruitment runs through a **Google F
 
 <div align="center">
 
-**Built for the NMIMS MPSTME Coding Club.** · `codingclub.mpstme@nmims.edu.in`
+**Built for the NMIMS MPSTME Coding Club.** · `nmims.codingclub@gmail.com`
 [LinkedIn](https://in.linkedin.com/company/codingclubnmims) · [Instagram](https://www.instagram.com/codingclubnmims/) · [Medium](https://medium.com/@nmims.codingclub)
 
 </div>

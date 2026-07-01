@@ -102,7 +102,7 @@ export const CONTACT = {
 }
 
 export const SOCIAL = {
-  email: 'codingclub.mpstme@nmims.edu.in',
+  email: 'nmims.codingclub@gmail.com',
   location: 'Mukesh Patel School of Technology Management & Engineering, NMIMS University',
   linkedin: 'https://in.linkedin.com/company/codingclubnmims',
   instagram: 'https://www.instagram.com/codingclubnmims/',
