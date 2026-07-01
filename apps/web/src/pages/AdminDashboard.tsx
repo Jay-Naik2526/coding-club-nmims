@@ -138,7 +138,7 @@ export function AdminDashboardPage() {
         <div className="py-8">
           {activeTab === 'stats' && <StatsView stats={stats} />}
           {activeTab === 'events' && <EventsCrudView events={events} isLoading={eventsLoading} queryClient={queryClient} />}
-          {activeTab === 'regs' && <RegistrationsView registrations={registrations} isLoading={regsLoading} events={events} />}
+          {activeTab === 'regs' && <RegistrationsView registrations={registrations} isLoading={regsLoading} events={events} queryClient={queryClient} />}
           {activeTab === 'forms' && <FormBuilderView forms={forms} isLoading={formsLoading} events={events} queryClient={queryClient} />}
           {activeTab === 'scanner' && <QrScanner />}
           {activeTab === 'scores' && <ScoreEntry events={events} />}
@@ -480,9 +480,10 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
 }
 
 // 3. REGISTRATIONS VIEW
-function RegistrationsView({ registrations, isLoading, events }: { registrations: any[]; isLoading: boolean; events: any[] }) {
+function RegistrationsView({ registrations, isLoading, events, queryClient }: { registrations: any[]; isLoading: boolean; events: any[]; queryClient: any }) {
   const [selectedDept, setSelectedDept] = useState<string>('all')
   const [selectedEventId, setSelectedEventId] = useState<string>('all')
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   // Filter logic
   const filtered = registrations.filter((reg) => {
@@ -490,6 +491,21 @@ function RegistrationsView({ registrations, isLoading, events }: { registrations
     if (selectedEventId !== 'all' && reg.eventId?._id !== selectedEventId) return false
     return true
   })
+
+  const handleDelete = async (reg: any) => {
+    const label = reg.teamName || reg.userId?.name || 'this entry'
+    if (!window.confirm(`Remove ${label}'s registration for "${reg.eventId?.title}"? This cannot be undone.`)) return
+    setDeletingId(reg._id)
+    try {
+      await api.post(`/admin/registrations/${reg._id}/delete`)
+      queryClient.invalidateQueries({ queryKey: ['adminRegistrations'] })
+      queryClient.invalidateQueries({ queryKey: ['adminStats'] })
+    } catch {
+      alert('Failed to remove registration')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   // Export CSV locally
   const handleCSVExport = () => {
@@ -576,6 +592,7 @@ function RegistrationsView({ registrations, isLoading, events }: { registrations
                 <th className="p-3 text-[10px] uppercase tracking-[0.12em]">Name & Email</th>
                 <th className="p-3 text-[10px] uppercase tracking-[0.12em]">Academic Profile</th>
                 <th className="p-3 text-[10px] uppercase tracking-[0.12em]">Team Info</th>
+                <th className="p-3 text-[10px] uppercase tracking-[0.12em] text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -602,6 +619,16 @@ function RegistrationsView({ registrations, isLoading, events }: { registrations
                     ) : (
                       <span className="italic opacity-40">Solo Entry</span>
                     )}
+                  </td>
+                  <td className="p-3 text-right">
+                    <button
+                      onClick={() => handleDelete(reg)}
+                      disabled={deletingId === reg._id}
+                      className="px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      style={{ fontFamily: 'var(--font-os)' }}
+                    >
+                      {deletingId === reg._id ? '…' : 'Remove'}
+                    </button>
                   </td>
                 </tr>
               ))}

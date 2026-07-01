@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { api } from '@/lib/api'
 import { useApp } from '@/store/useApp'
+import { downloadTicketPdf } from '@/lib/download'
 
 interface ProfileData {
   user: {
@@ -195,15 +196,13 @@ export function ProfilePage() {
                         >
                           📱 View Ticket
                         </Link>
-                        <a
-                          href={`${import.meta.env.VITE_API_URL || 'http://localhost:7860'}/registrations/${reg._id}/ticket`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => downloadTicketPdf(reg._id, reg.eventId?.slug || 'ticket')}
                           className="px-3 py-1.5 text-[9px] uppercase tracking-[0.1em] font-bold text-white bg-[var(--news-ink)] hover:bg-black"
                           style={{ fontFamily: 'var(--font-os)' }}
                         >
                           🎟 PDF
-                        </a>
+                        </button>
                       </div>
                     </div>
                   ))}

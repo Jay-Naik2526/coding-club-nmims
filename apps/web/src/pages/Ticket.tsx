@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { api } from '@/lib/api'
 import { useApp } from '@/store/useApp'
 import { DEPTS, type DeptId } from '@/lib/depts'
+import { downloadTicketPdf } from '@/lib/download'
 
 interface TicketData {
   dataUrl: string
@@ -116,15 +117,13 @@ export function TicketPage() {
       </motion.div>
 
       <div className="mt-6 flex items-center justify-center gap-5 text-[10px] uppercase tracking-[0.1em]">
-        <a
-          href={`${import.meta.env.VITE_API_URL || 'http://localhost:7860'}/registrations/${registration.id}/ticket`}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={() => downloadTicketPdf(registration.id, event.slug)}
           style={{ color: 'var(--news-ink)' }}
           className="underline hover:text-[var(--news-red)]"
         >
           Download PDF pass
-        </a>
+        </button>
         <Link to="/profile" style={{ color: 'var(--news-ink)' }} className="underline hover:text-[var(--news-red)]">
           ← Back to profile
         </Link>

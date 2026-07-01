@@ -62,6 +62,26 @@ router.get('/registrations', requireAdmin, async (req, res) => {
   }
 });
 
+// Admin-only: remove a registration (and its team-member rows / round
+// scores, so nothing orphaned is left behind). Exposed as DELETE plus a
+// POST alias — POST is a CORS "simple" method, so the browser sends no
+// preflight (HF Spaces' proxy mishandles preflights). See lib/api.ts.
+const deleteRegistration: express.RequestHandler = async (req, res) => {
+  try {
+    const registration = await Registration.findByIdAndDelete(req.params.id);
+    if (!registration) {
+      return res.status(404).json({ error: 'Registration not found' });
+    }
+    await TeamMember.deleteMany({ registrationId: registration._id });
+    await Score.deleteMany({ registrationId: registration._id });
+    res.json({ message: 'Registration removed successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete registration' });
+  }
+};
+router.delete('/registrations/:id', requireAdmin, deleteRegistration);
+router.post('/registrations/:id/delete', requireAdmin, deleteRegistration);
+
 // GET /admin/forms - List all dynamic forms
 router.get('/forms', requireAdmin, async (req, res) => {
   try {
