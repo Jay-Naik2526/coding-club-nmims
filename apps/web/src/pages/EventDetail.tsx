@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { DEPTS } from '@/lib/depts'
 import { archiveBySlug } from '@/lib/archive'
 import { Recap } from './Recap'
@@ -183,16 +183,15 @@ export function EventDetailPage() {
                   ✓ Registered
                 </span>
                 <p className="text-xs leading-relaxed mb-4 text-gray-700">
-                  Your entry pass is active. A copy has been dispatched to your email. You can download the pass PDF directly below.
+                  Your entry pass is active. View your QR ticket below and show it at the venue entrance.
                 </p>
-                <a
-                  href={`${import.meta.env.VITE_API_URL || 'http://localhost:7860'}/registrations/${activeReg._id}/ticket`}
-                  download
+                <Link
+                  to={`/ticket/${activeReg._id}`}
                   className="cc-hover block w-full py-3 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-white"
                   style={{ background: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}
                 >
-                  Download Pass PDF →
-                </a>
+                  View QR Ticket →
+                </Link>
               </div>
             ) : showTeamForm ? (
               // 2. INLINE TEAM FORM STATE

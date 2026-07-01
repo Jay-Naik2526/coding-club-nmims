@@ -5,9 +5,8 @@ import { useWipe } from '@/components/wipe-context'
 import { SOCIAL } from '@/lib/content'
 
 const NAV = [
-  ['Editorial', '/events'],
-  ['Competitions', '/leaderboard'],
-  ['IDE', '/ide'],
+  ['Competitions', '/events'],
+  ['Rankings', '/leaderboard'],
   ['Team', '/team'],
   ['Join Us', '/join'],
 ] as const

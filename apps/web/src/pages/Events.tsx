@@ -21,9 +21,9 @@ export function EventsPage() {
     }
   })
 
-  // Filter events by selected department
-  const deptEvents = events?.filter((e: any) => e.department === dept) || []
-  const activeEvents = deptEvents.filter((e: any) => e.status !== 'closed')
+  // All events are always shown regardless of the selected department —
+  // the dept selection only themes the page (accent color, hero copy).
+  const activeEvents = (events || []).filter((e: any) => e.status !== 'closed')
 
   // Archive section is driven by static data — always shows all, unaffected by dept filter
   const deptArchive = ARCHIVE
@@ -120,7 +120,7 @@ export function EventsPage() {
               This year’s lineup is in development.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed sm:text-base" style={{ color: 'rgba(26,22,18,.6)' }}>
-              No active events are scheduled for this track right now. Follow our community channels to get notified when hackathons, contests, and bootcamps drop — or explore our syllabus below.
+              No active events are scheduled right now, across any track. Follow our community channels to get notified when hackathons, contests, and bootcamps drop — or explore our syllabus below.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <a href={SOCIAL.instagram} target="_blank" rel="noreferrer" className="cc-hover px-6 py-3 text-[11px] uppercase tracking-[0.12em] text-white" style={{ background: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}>

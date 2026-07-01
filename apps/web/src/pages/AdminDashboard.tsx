@@ -483,14 +483,18 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
 function RegistrationsView({ registrations, isLoading, events, queryClient }: { registrations: any[]; isLoading: boolean; events: any[]; queryClient: any }) {
   const [selectedDept, setSelectedDept] = useState<string>('all')
   const [selectedEventId, setSelectedEventId] = useState<string>('all')
+  const [attendanceFilter, setAttendanceFilter] = useState<'all' | 'attended' | 'not_attended'>('all')
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   // Filter logic
   const filtered = registrations.filter((reg) => {
     if (selectedDept !== 'all' && reg.eventId?.department !== selectedDept) return false
     if (selectedEventId !== 'all' && reg.eventId?._id !== selectedEventId) return false
+    if (attendanceFilter === 'attended' && !reg.attended) return false
+    if (attendanceFilter === 'not_attended' && reg.attended) return false
     return true
   })
+  const attendedCount = filtered.filter((r) => r.attended).length
 
   const handleDelete = async (reg: any) => {
     const label = reg.teamName || reg.userId?.name || 'this entry'
@@ -507,32 +511,49 @@ function RegistrationsView({ registrations, isLoading, events, queryClient }: { 
     }
   }
 
-  // Export CSV locally
-  const handleCSVExport = () => {
-    const headers = ['Registration Date', 'Event Title', 'Track', 'Type', 'User/Leader Name', 'Email', 'Team Name', 'Members Roster']
-    const rows = [headers]
+  // Export CSV locally. When certificatesOnly is true, only rows with
+  // attended === true are included — that's the roster that should
+  // actually receive certificates, not everyone who merely registered.
+  const exportCSV = (rows: any[], certificatesOnly: boolean) => {
+    const source = certificatesOnly ? rows.filter((r) => r.attended) : rows
+    const headers = certificatesOnly
+      ? ['Event Title', 'Track', 'Name', 'Email', 'Team Name', 'Checked In At']
+      : ['Registration Date', 'Event Title', 'Track', 'Type', 'User/Leader Name', 'Email', 'Team Name', 'Members Roster', 'Attended']
+    const csvRows = [headers]
 
-    filtered.forEach((reg) => {
+    source.forEach((reg) => {
       const rosterNames = reg.teamMembers ? reg.teamMembers.map((m: any) => m.name).join('; ') : ''
-      rows.push([
-        new Date(reg.createdAt).toLocaleString(),
-        reg.eventId?.title || 'Unknown Event',
-        reg.eventId?.department?.toUpperCase() || 'N/A',
-        reg.eventId?.type || 'N/A',
-        reg.userId?.name || 'N/A',
-        reg.userId?.email || 'N/A',
-        reg.teamName || '',
-        rosterNames
-      ])
+      csvRows.push(
+        certificatesOnly
+          ? [
+              reg.eventId?.title || 'Unknown Event',
+              reg.eventId?.department?.toUpperCase() || 'N/A',
+              reg.userId?.name || 'N/A',
+              reg.userId?.email || 'N/A',
+              reg.teamName || '',
+              reg.attendedAt ? new Date(reg.attendedAt).toLocaleString() : '',
+            ]
+          : [
+              new Date(reg.createdAt).toLocaleString(),
+              reg.eventId?.title || 'Unknown Event',
+              reg.eventId?.department?.toUpperCase() || 'N/A',
+              reg.eventId?.type || 'N/A',
+              reg.userId?.name || 'N/A',
+              reg.userId?.email || 'N/A',
+              reg.teamName || '',
+              rosterNames,
+              reg.attended ? 'Yes' : 'No',
+            ]
+      )
     })
 
-    const csvContent = 'data:text/csv;charset=utf-8,' 
-      + rows.map(e => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const csvContent = 'data:text/csv;charset=utf-8,'
+      + csvRows.map(e => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
 
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `coding_club_registrations_${new Date().toISOString().split('T')[0]}.csv`)
+    link.setAttribute('download', `coding_club_${certificatesOnly ? 'attendees_for_certificates' : 'registrations'}_${new Date().toISOString().split('T')[0]}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -543,16 +564,27 @@ function RegistrationsView({ registrations, isLoading, events, queryClient }: { 
       <div className="flex flex-wrap justify-between items-baseline gap-4 border-b pb-3" style={{ borderColor: 'rgba(26,22,18,.15)' }}>
         <div>
           <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold italic">Student Registrations</h2>
-          <p className="text-xs opacity-60">Browse entry lists and filter down by department or specific contest.</p>
+          <p className="text-xs opacity-60">Browse entry lists and filter down by department, contest, or attendance.</p>
         </div>
-        <button
-          onClick={handleCSVExport}
-          disabled={filtered.length === 0}
-          className="px-4 py-1.5 text-[9px] uppercase tracking-[0.1em] font-bold text-white bg-[var(--news-red)] disabled:opacity-40"
-          style={{ fontFamily: 'var(--font-os)' }}
-        >
-          📥 Export CSV ({filtered.length})
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => exportCSV(filtered, false)}
+            disabled={filtered.length === 0}
+            className="px-4 py-1.5 text-[9px] uppercase tracking-[0.1em] font-bold text-white bg-[var(--news-ink)] disabled:opacity-40"
+            style={{ fontFamily: 'var(--font-os)' }}
+          >
+            📥 Export CSV ({filtered.length})
+          </button>
+          <button
+            onClick={() => exportCSV(filtered, true)}
+            disabled={attendedCount === 0}
+            className="px-4 py-1.5 text-[9px] uppercase tracking-[0.1em] font-bold text-white bg-[var(--news-red)] disabled:opacity-40"
+            style={{ fontFamily: 'var(--font-os)' }}
+            title="Only students marked attended via the ticket scanner — the correct list for certificate issuance"
+          >
+            📜 Export for Certificates ({attendedCount})
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -575,6 +607,14 @@ function RegistrationsView({ registrations, isLoading, events, queryClient }: { 
             ))}
           </select>
         </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[9px] uppercase tracking-[0.1em] opacity-60">Filter Attendance</label>
+          <select value={attendanceFilter} onChange={(e) => setAttendanceFilter(e.target.value as any)} className="border bg-transparent p-1.5 text-xs outline-none" style={{ borderColor: 'rgba(26,22,18,.3)' }}>
+            <option value="all">All</option>
+            <option value="attended">Attended Only</option>
+            <option value="not_attended">Not Yet Attended</option>
+          </select>
+        </div>
       </div>
 
       {isLoading ? (
@@ -592,6 +632,7 @@ function RegistrationsView({ registrations, isLoading, events, queryClient }: { 
                 <th className="p-3 text-[10px] uppercase tracking-[0.12em]">Name & Email</th>
                 <th className="p-3 text-[10px] uppercase tracking-[0.12em]">Academic Profile</th>
                 <th className="p-3 text-[10px] uppercase tracking-[0.12em]">Team Info</th>
+                <th className="p-3 text-[10px] uppercase tracking-[0.12em] text-center">Attendance</th>
                 <th className="p-3 text-[10px] uppercase tracking-[0.12em] text-right">Actions</th>
               </tr>
             </thead>
@@ -618,6 +659,17 @@ function RegistrationsView({ registrations, isLoading, events, queryClient }: { 
                       </div>
                     ) : (
                       <span className="italic opacity-40">Solo Entry</span>
+                    )}
+                  </td>
+                  <td className="p-3 text-center">
+                    {reg.attended ? (
+                      <span className="inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-white bg-green-700" style={{ fontFamily: 'var(--font-os)' }}>
+                        ✓ Attended
+                      </span>
+                    ) : (
+                      <span className="inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] border border-gray-300 opacity-50" style={{ fontFamily: 'var(--font-os)' }}>
+                        Not Yet
+                      </span>
                     )}
                   </td>
                   <td className="p-3 text-right">
