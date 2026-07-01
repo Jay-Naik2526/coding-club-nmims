@@ -6,6 +6,7 @@ import { PROGRAMS, SOCIAL } from '@/lib/content'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { ARCHIVE } from '@/lib/archive'
+import { toDirectImageUrl } from '@/lib/image'
 
 export function EventsPage() {
   const { dept } = useApp()
@@ -66,6 +67,7 @@ export function EventsPage() {
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
               {activeEvents.map((ev: any, i: number) => {
                 const isLive = ev.status === 'live';
+                const bannerSrc = toDirectImageUrl(ev.bannerUrl)
                 return (
                   <motion.div
                     key={ev.slug}
@@ -73,9 +75,21 @@ export function EventsPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.08 }}
-                    className="cc-hover group flex flex-col justify-between border p-5 text-left"
+                    className="cc-hover group flex flex-col justify-between border text-left"
                     style={{ borderColor: 'rgba(26,22,18,.18)' }}
                   >
+                    {bannerSrc && (
+                      <img
+                        src={bannerSrc}
+                        alt={ev.title}
+                        className="h-36 w-full border-b object-cover"
+                        style={{ borderColor: 'rgba(26,22,18,.18)' }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    )}
+                    <div className="flex flex-1 flex-col justify-between p-5">
                     <div>
                       <div className="mb-2 flex items-baseline justify-between gap-2">
                         <span className="px-2 py-0.5 text-[9px] uppercase tracking-[0.1em] text-white" style={{ background: cfg.acc, fontFamily: 'var(--font-os)' }}>
@@ -104,6 +118,7 @@ export function EventsPage() {
                       >
                         Enter Event →
                       </button>
+                    </div>
                     </div>
                   </motion.div>
                 )

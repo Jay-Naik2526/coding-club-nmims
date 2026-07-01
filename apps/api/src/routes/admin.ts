@@ -284,12 +284,13 @@ router.post('/scan', requireAdmin, async (req, res) => {
   }
 });
 
-// GET /admin/scores/:eventId - Live-judging score sheet for an event: every
-// registration (solo entrant or team) alongside whatever round scores exist
-// so far. Used to render the admin's round-by-round score entry table.
+// GET /admin/scores/:eventId - Live-judging score sheet for an event.
+// Only CHECKED-IN registrations are returned — scoring people who never
+// showed up doesn't make sense, and this keeps the sheet short during a
+// live event with a big registered-but-not-all-present list.
 router.get('/scores/:eventId', requireAdmin, async (req, res) => {
   try {
-    const registrations = await Registration.find({ eventId: req.params.eventId }).populate('userId', 'name email');
+    const registrations = await Registration.find({ eventId: req.params.eventId, attended: true }).populate('userId', 'name email');
     const scores = await Score.find({ eventId: req.params.eventId });
 
     const rows = await Promise.all(

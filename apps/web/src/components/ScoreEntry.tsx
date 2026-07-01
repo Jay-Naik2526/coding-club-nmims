@@ -66,7 +66,7 @@ export function ScoreEntry({ events }: { events: EventOption[] }) {
 
   return (
     <div>
-      <div className="mb-5 flex flex-col gap-1">
+      <div className="mb-2 flex flex-col gap-1">
         <label className="text-[9px] uppercase tracking-[0.1em] opacity-60">Event</label>
         <select
           value={eventId}
@@ -79,12 +79,13 @@ export function ScoreEntry({ events }: { events: EventOption[] }) {
           ))}
         </select>
       </div>
+      <p className="mb-5 text-[10px] italic opacity-50">Only participants checked in via the ticket scanner appear here.</p>
 
       {isLoading ? (
         <div className="py-8 text-center text-sm opacity-60">Loading participants…</div>
       ) : rows.length === 0 ? (
         <div className="border p-8 text-center italic opacity-60" style={{ borderColor: 'rgba(26,22,18,.15)' }}>
-          No registrations yet for this event.
+          No one has been checked in for this event yet — scan tickets first, then scores appear here.
         </div>
       ) : (
         <div className="overflow-x-auto border" style={{ borderColor: 'rgba(26,22,18,.18)' }}>

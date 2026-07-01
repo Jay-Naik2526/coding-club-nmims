@@ -406,7 +406,8 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
               </div>
               <div className="flex flex-col sm:col-span-2">
                 <label className="mb-1 text-[9px] uppercase tracking-[0.1em] opacity-60">Banner Image URL (Optional)</label>
-                <input value={bannerUrl} onChange={e => setBannerUrl(e.target.value)} className="border bg-transparent p-2 text-sm outline-none focus:border-[var(--news-red)]" style={{ borderColor: 'rgba(26,22,18,.3)' }} />
+                <input value={bannerUrl} onChange={e => setBannerUrl(e.target.value)} placeholder="Direct image URL, or a Google Drive share link" className="border bg-transparent p-2 text-sm outline-none focus:border-[var(--news-red)]" style={{ borderColor: 'rgba(26,22,18,.3)' }} />
+                <p className="mt-1 text-[10px] italic opacity-50">Google Drive links are auto-converted — just make sure the file is shared as "Anyone with the link can view".</p>
               </div>
 
               <label className="flex items-center gap-2 sm:col-span-2 cursor-pointer border p-3" style={{ borderColor: isPublished ? 'rgba(26,22,18,.18)' : 'var(--news-red)', background: isPublished ? 'transparent' : 'rgba(200,0,42,0.04)' }}>

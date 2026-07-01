@@ -6,6 +6,7 @@ import { Recap } from './Recap'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useApp } from '@/store/useApp'
 import { api } from '@/lib/api'
+import { toDirectImageUrl } from '@/lib/image'
 
 export function EventDetailPage() {
   const { slug } = useParams()
@@ -75,6 +76,7 @@ export function EventDetailPage() {
 
   const closed = ev.status === 'closed'
   const cfg = DEPTS[ev.department as keyof typeof DEPTS]
+  const bannerSrc = toDirectImageUrl(ev.bannerUrl)
 
   const handleSoloRegister = async () => {
     if (!user) {
@@ -156,6 +158,18 @@ export function EventDetailPage() {
           STATUS — {ev.status.toUpperCase()}
         </span>
       </div>
+
+      {bannerSrc && (
+        <img
+          src={bannerSrc}
+          alt={ev.title}
+          className="mb-8 h-64 w-full border object-cover sm:h-96"
+          style={{ borderColor: 'var(--news-ink)' }}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
+        />
+      )}
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px]">
         <div className="drop-cap text-[15px] leading-[1.85]" style={{ color: 'rgba(26,22,18,.78)' }}>
