@@ -412,7 +412,7 @@ function DepartmentTree({ departments }: { departments: Dept[] }) {
             </div>
 
             {/* Heads — sized to the department's real headcount, not a fixed grid */}
-            <div className={`grid grid-cols-2 gap-5 ${dept.heads.length >= 3 ? 'sm:grid-cols-3' : 'max-w-md sm:grid-cols-2'}`}>
+            <div className={`grid grid-cols-2 gap-5 ${dept.heads.length >= 3 ? 'max-w-2xl sm:grid-cols-3' : 'max-w-md sm:grid-cols-2'}`}>
               {dept.heads.map((h, i) => (
                 <motion.div
                   key={h.name}
