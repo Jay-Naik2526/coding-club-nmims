@@ -151,7 +151,7 @@ export function TeamPage() {
         </div>
       </section>
 
-      {/* ── CORE COMMITTEE (coming soon) ─────────────────────────────────── */}
+      {/* ── CORE COMMITTEE ───────────────────────────────────────────────── */}
       <section className="mx-auto mt-20 max-w-5xl px-5 sm:px-10">
         <SectionHead n="03" label="Core Committee" title="The Organising Crew" />
 
@@ -166,28 +166,38 @@ export function TeamPage() {
           <span className="absolute inset-x-0 top-0 h-1.5" style={{ background: 'var(--news-red)' }} />
 
           <div className="text-[9px] uppercase tracking-[0.3em] mb-4" style={{ color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
-            Stop Press · Recruitment Open
+            Stop Press · Selections Complete
           </div>
           <h3 className="font-[family-name:var(--font-serif)] font-black leading-tight mb-4" style={{ fontSize: 'clamp(1.6rem,3vw,2.4rem)' }}>
-            Core Committee 2026 — Applications Live
+            Core Committee 2026–27 Formed
           </h3>
           <p className="mx-auto max-w-xl text-sm leading-relaxed mb-8" style={{ color: 'rgba(26,22,18,.6)' }}>
-            We're actively recruiting coordinators for Event Management, Web Development, Cybersecurity, Documentation, Marketing & PR, and Creative & Social Media. The full committee roster will be published here once selections are finalised.
+            The selection process for the Coding Club Core Committee is complete. We have successfully onboarded coordinators across all divisions to execute our long-term vision and events.
           </p>
 
           {/* placeholder slots */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 mb-8">
-            {['Event Mgmt', 'Web Dev', 'Cybersec', 'Docs', 'Marketing', 'Creative'].map((dept) => (
+            {[
+              { name: 'Event Mgmt', status: 'Staffed' },
+              { name: 'Web Dev', status: 'Staffed' },
+              { name: 'Cybersec', status: 'Staffed' },
+              { name: 'Docs & PR', status: 'Staffed' },
+              { name: 'Marketing', status: 'Staffed' },
+              { name: 'Creative', status: 'Staffed' }
+            ].map((dept) => (
               <div
-                key={dept}
-                className="border border-dashed py-6 flex flex-col items-center gap-2"
-                style={{ borderColor: 'rgba(26,22,18,.25)' }}
+                key={dept.name}
+                className="border py-6 flex flex-col items-center gap-2"
+                style={{ borderColor: 'rgba(26,22,18,.15)', background: 'rgba(26,22,18,.01)' }}
               >
-                <div className="h-10 w-10 rounded-full border border-dashed flex items-center justify-center text-lg" style={{ borderColor: 'rgba(26,22,18,.2)' }}>
-                  ?
+                <div className="h-10 w-10 rounded-full border flex items-center justify-center text-sm font-bold text-green-600 bg-green-50/50" style={{ borderColor: 'rgba(16,185,129,.3)' }}>
+                  ✓
                 </div>
-                <div className="text-[9px] uppercase tracking-[0.1em]" style={{ color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
-                  {dept}
+                <div className="text-[9px] uppercase tracking-[0.1em] font-semibold" style={{ color: 'rgba(26,22,18,.7)', fontFamily: 'var(--font-os)' }}>
+                  {dept.name}
+                </div>
+                <div className="text-[8px] uppercase tracking-[0.1em]" style={{ color: '#10b981', fontFamily: 'var(--font-os)' }}>
+                  {dept.status}
                 </div>
               </div>
             ))}
@@ -198,7 +208,7 @@ export function TeamPage() {
             className="cc-hover inline-block px-8 py-3 text-[11px] uppercase tracking-[0.14em] text-white"
             style={{ background: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}
           >
-            Apply Now →
+            Selection Briefing →
           </a>
         </motion.div>
       </section>

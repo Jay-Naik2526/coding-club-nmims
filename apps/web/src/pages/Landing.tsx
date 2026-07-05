@@ -69,7 +69,7 @@ export function Landing() {
           <span>CC<span style={{ color: cfg.acc }}>_</span></span>
         </button>
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] sm:gap-5">
-          <button onClick={() => wipeTo('/join')} className="opacity-100 hover:opacity-80 transition-opacity font-bold" style={{ color: '#ff4d4d' }}>Apply</button>
+          <button onClick={() => wipeTo('/join')} className="opacity-70 transition-opacity hover:opacity-100">Join Us</button>
           <button onClick={() => wipeTo('/events')} className="opacity-70 transition-opacity hover:opacity-100">Events</button>
           <button onClick={() => wipeTo('/team')} className="hidden opacity-70 transition-opacity hover:opacity-100 sm:inline">Team</button>
           <button
@@ -98,8 +98,8 @@ export function Landing() {
                 className="inline-flex items-center gap-2 rounded-full border px-4 py-1 text-[9px] uppercase tracking-[0.15em] cursor-pointer hover:bg-white/5 transition-colors"
                 style={{ borderColor: 'rgba(243,239,229,.25)', color: '#fff', fontFamily: 'var(--font-os)' }}
               >
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                <span>Core Committee Recruitment 2026 is Live →</span>
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" style={{ backgroundColor: '#10b981' }} />
+                <span>Core Committee 2026–27 Selected & Formed →</span>
               </div>
               <div className="text-[10px] uppercase tracking-[0.35em]" style={{ color: 'rgba(243,239,229,.5)' }}>
                 NMIMS MPSTME · Code. Collaborate. Create.
