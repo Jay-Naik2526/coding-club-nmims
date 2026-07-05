@@ -79,7 +79,7 @@ const DEPARTMENTS = [
 const QUICK_NAV = [
   ['president', 'The President'],
   ['leadership', 'Co-Heads'],
-  ['committee', 'Core Committee'],
+  ['committee', 'Core (Dept Heads)'],
   ['faculty', 'Faculty'],
   ['contact', 'Contact'],
 ] as const
@@ -148,7 +148,7 @@ export function TeamPage() {
 
             <div>
               <div className="mb-2 text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
-                Club President · Coding Club NMIMS
+                Supercore · Club President
               </div>
               <h2 className="font-[family-name:var(--font-serif)] font-black leading-tight" style={{ fontSize: 'clamp(2.2rem,5vw,3.6rem)' }}>
                 Jay Naik
@@ -221,7 +221,7 @@ export function TeamPage() {
                   </div>
                   <div className="font-[family-name:var(--font-serif)] text-xl font-bold leading-tight">{c.name}</div>
                   <div className="mt-1 text-[10px] uppercase tracking-[0.1em]" style={{ color: 'rgba(26,22,18,.45)', fontFamily: 'var(--font-os)' }}>
-                    Core Committee · NMIMS
+                    Supercore · NMIMS
                   </div>
                 </div>
               </motion.div>
@@ -435,6 +435,9 @@ function DepartmentTree({ departments }: { departments: Dept[] }) {
                       {h.role}
                     </div>
                     <div className="font-[family-name:var(--font-serif)] text-base font-bold leading-tight">{h.name}</div>
+                    <div className="mt-1 text-[10px] uppercase tracking-[0.1em]" style={{ color: 'rgba(26,22,18,.45)', fontFamily: 'var(--font-os)' }}>
+                      Core · NMIMS
+                    </div>
                   </div>
                 </motion.div>
               ))}
