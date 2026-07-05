@@ -1,5 +1,5 @@
-import { Suspense, lazy, useState } from 'react'
-import { motion } from 'framer-motion'
+import { Suspense, lazy, useRef, useState } from 'react'
+import { motion, useScroll } from 'framer-motion'
 import { FACULTY, FACULTY_NOTE, CAMPUSES, CONTACT, SOCIAL } from '@/lib/content'
 import { DEPTS } from '@/lib/depts'
 import axios from 'axios'
@@ -15,10 +15,9 @@ const CO_HEADS = [
 
 const FACULTY_CURRENT = FACULTY.filter((f) => f.name !== 'Prof. Pratiksha Meshram')
 
-// Each committee gets its own accent — a mix of the site's real department
-// colors (Web/Cybersecurity, borrowed from DEPTS so they stay tied to the
-// tracks they actually run) plus a few more ink tones for the operations
-// committees, so all six read as distinct mastheads, not one grey pile.
+// Each committee gets its own accent — Web Dev/Cybersecurity borrow the real
+// colors those tracks use elsewhere on the site; the operations committees
+// get their own ink tones so all six read as distinct branches on the chart.
 const DEPARTMENTS = [
   {
     name: 'Event Management',
@@ -86,6 +85,11 @@ const QUICK_NAV = [
 ] as const
 
 export function TeamPage() {
+  // The main "chain of command" trunk — spans President through Faculty.
+  // Its height draws in tied to how far you've scrolled through that range.
+  const spineRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: mainLine } = useScroll({ target: spineRef, offset: ['start end', 'end start'] })
+
   return (
     <>
       {/* ── MASTHEAD HERO ────────────────────────────────────────────────── */}
@@ -101,7 +105,6 @@ export function TeamPage() {
           A small core team that architects every event, system, and workshop the Coding Club runs across NMIMS campuses.
         </p>
 
-        {/* Quick-jump nav — the page's own table of contents */}
         <nav className="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-y py-3" style={{ borderColor: 'rgba(26,22,18,.15)' }}>
           {QUICK_NAV.map(([id, label]) => (
             <a
@@ -116,217 +119,161 @@ export function TeamPage() {
         </nav>
       </header>
 
-      {/* ── 01 · THE PRESIDENT — cover-story treatment ──────────────────── */}
-      <section id="president" className="mx-auto mt-16 max-w-5xl scroll-mt-10 px-5 sm:px-10">
-        <SectionHead n="01" label="Club President" title="The Head" />
-
+      {/* ── THE CHAIN OF COMMAND — one continuous ink trunk, President → Faculty ── */}
+      <div ref={spineRef} className="relative mx-auto mt-4 max-w-5xl px-5 sm:px-10">
+        {/* the trunk itself — height grows tied to scroll position */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,320px)_1fr] md:items-start"
-        >
-          <div className="mx-auto w-full max-w-sm border md:mx-0" style={{ borderColor: 'var(--news-ink)' }}>
-            <div className="group relative aspect-[3/4] overflow-hidden">
-              <img
-                src="/team/Jay.jpeg"
-                alt="Jay Naik"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-          </div>
+          aria-hidden
+          className="absolute left-4 top-0 hidden w-px sm:left-5 sm:block"
+          style={{ height: '100%', background: 'var(--news-ink)', scaleY: mainLine, transformOrigin: 'top', opacity: 0.35 }}
+        />
 
-          <div>
-            <div className="mb-2 text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
-              Club President · Coding Club NMIMS
-            </div>
-            <h2 className="font-[family-name:var(--font-serif)] font-black leading-tight" style={{ fontSize: 'clamp(2.2rem,5vw,3.6rem)' }}>
-              Jay Naik
-            </h2>
-            <div className="pull-q mt-4">
-              "Build things that outlast the semester they were built in."
-            </div>
-            <div className="drop-cap space-y-3 text-[15px] leading-relaxed" style={{ color: 'rgba(26,22,18,.72)' }}>
-              <p>
-                Head of the Coding Club at NMIMS MPSTME. Oversees all technical initiatives, event architecture, committee operations, and the club's long-term vision across campuses.
-              </p>
-              <p>
-                Leads the cybersecurity division and coordinates the core team across DSA, Web Development, and Security tracks.
-              </p>
-            </div>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {['Cybersecurity', 'Event Architecture', 'Leadership', 'Full-Stack'].map((tag) => (
-                <span
-                  key={tag}
-                  className="border px-3 py-1 text-[9px] uppercase tracking-[0.14em]"
-                  style={{ borderColor: 'rgba(26,22,18,.2)', color: 'rgba(26,22,18,.55)', fontFamily: 'var(--font-os)' }}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <div className="mt-6 border-t pt-4 text-[10px] uppercase tracking-[0.14em]" style={{ borderColor: 'rgba(26,22,18,.15)', color: 'rgba(26,22,18,.5)', fontFamily: 'var(--font-os)' }}>
-              Contact — 9374488770
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ── 02 · SENIOR LEADERSHIP ───────────────────────────────────────── */}
-      <section id="leadership" className="mx-auto mt-20 max-w-5xl scroll-mt-10 px-5 sm:px-10">
-        <SectionHead n="02" label="Senior Leadership" title="Co-Heads" />
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="relative mb-8 h-[320px] overflow-hidden rounded-2xl sm:h-[360px]"
-          style={{ background: 'radial-gradient(ellipse at 50% 30%, #090a1a, #0b0a09)' }}
-        >
-          <Suspense fallback={<CanvasPlaceholder />}>
-            <CoHeadCanvas photos={CO_HEADS.map((c) => c.photo)} accent="#5b6af0" />
-          </Suspense>
-          <div className="absolute bottom-4 left-0 right-0 text-center">
-            <div className="text-[9px] uppercase tracking-[0.25em] opacity-40" style={{ color: '#f3efe5', fontFamily: 'var(--font-os)' }}>
-              ✦ move cursor to pan ✦
-            </div>
-          </div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          {CO_HEADS.map((c, i) => (
-            <motion.div
-              key={c.name}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              className="group relative overflow-hidden border"
-              style={{ borderColor: 'rgba(26,22,18,.18)' }}
-            >
-              <div className="aspect-[3/4] overflow-hidden">
-                <img src={c.photo} alt={c.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        <StationSection id="president" n="01" label="Club President" title="The Head" marginTop="mt-12">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid grid-cols-1 gap-10 md:grid-cols-[minmax(0,320px)_1fr] md:items-start"
+          >
+            <div className="mx-auto w-full max-w-sm border md:mx-0" style={{ borderColor: 'var(--news-ink)' }}>
+              <div className="group relative aspect-[3/4] overflow-hidden">
+                <img
+                  src="/team/Jay.jpeg"
+                  alt="Jay Naik"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
               </div>
-              <div className="border-t p-4" style={{ borderColor: 'rgba(26,22,18,.12)' }}>
-                <div className="mb-1 text-[9px] uppercase tracking-[0.16em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
-                  Co-Head
-                </div>
-                <div className="font-[family-name:var(--font-serif)] text-xl font-bold leading-tight">{c.name}</div>
-                <div className="mt-1 text-[10px] uppercase tracking-[0.1em]" style={{ color: 'rgba(26,22,18,.45)', fontFamily: 'var(--font-os)' }}>
-                  Core Committee · NMIMS
-                </div>
+            </div>
+
+            <div>
+              <div className="mb-2 text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+                Club President · Coding Club NMIMS
               </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 03 · CORE COMMITTEE — six separate department mastheads ─────── */}
-      <section id="committee" className="mx-auto mt-20 max-w-5xl scroll-mt-10 px-5 sm:px-10">
-        <SectionHead n="03" label="Core Committee · 2026–27" title="The Organising Crew" />
-
-        <div className="space-y-16">
-          {DEPARTMENTS.map((dept, di) => (
-            <div key={dept.name}>
-              {/* Department masthead: ghost numeral + name + mission line, in that dept's own color */}
-              <div className="relative mb-7 flex items-end gap-3 border-b-4 pb-3 sm:gap-5" style={{ borderColor: dept.color }}>
-                <span
-                  className="select-none font-[family-name:var(--font-serif)] font-black leading-[0.75]"
-                  style={{ fontSize: 'clamp(2.6rem,6vw,4.4rem)', color: dept.color, opacity: 0.16 }}
-                >
-                  0{di + 1}
-                </span>
-                <div className="pb-1">
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <h3 className="font-[family-name:var(--font-serif)] font-black leading-tight" style={{ fontSize: 'clamp(1.4rem,3vw,2rem)' }}>
-                      {dept.name}
-                    </h3>
-                    <span
-                      className="text-[9px] uppercase tracking-[0.14em]"
-                      style={{ color: dept.color, fontFamily: 'var(--font-os)' }}
-                    >
-                      · {dept.heads.length} Head{dept.heads.length > 1 ? 's' : ''}
-                    </span>
-                  </div>
-                  <p className="mt-1 max-w-lg text-sm italic leading-relaxed" style={{ color: 'rgba(26,22,18,.55)' }}>
-                    {dept.desc}
-                  </p>
-                </div>
+              <h2 className="font-[family-name:var(--font-serif)] font-black leading-tight" style={{ fontSize: 'clamp(2.2rem,5vw,3.6rem)' }}>
+                Jay Naik
+              </h2>
+              <div className="pull-q mt-4">
+                "Build things that outlast the semester they were built in."
               </div>
-
-              {/* Heads — sized to the department's real headcount, not a fixed grid */}
-              <div
-                className={`grid grid-cols-2 gap-5 ${dept.heads.length >= 3 ? 'sm:grid-cols-3' : 'max-w-md sm:grid-cols-2'}`}
-              >
-                {dept.heads.map((h, i) => (
-                  <motion.div
-                    key={h.name}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08 }}
-                    className="group relative overflow-hidden border transition-shadow duration-300 hover:shadow-lg"
-                    style={{ borderColor: 'rgba(26,22,18,.18)' }}
+              <div className="drop-cap space-y-3 text-[15px] leading-relaxed" style={{ color: 'rgba(26,22,18,.72)' }}>
+                <p>
+                  Head of the Coding Club at NMIMS MPSTME. Oversees all technical initiatives, event architecture, committee operations, and the club's long-term vision across campuses.
+                </p>
+                <p>
+                  Leads the cybersecurity division and coordinates the core team across DSA, Web Development, and Security tracks.
+                </p>
+              </div>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {['Cybersecurity', 'Event Architecture', 'Leadership', 'Full-Stack'].map((tag) => (
+                  <span
+                    key={tag}
+                    className="border px-3 py-1 text-[9px] uppercase tracking-[0.14em]"
+                    style={{ borderColor: 'rgba(26,22,18,.2)', color: 'rgba(26,22,18,.55)', fontFamily: 'var(--font-os)' }}
                   >
-                    <span className="absolute inset-x-0 top-0 z-10 h-[3px]" style={{ background: dept.color }} />
-                    <div className="aspect-[3/4] overflow-hidden bg-stone-100">
-                      {h.photo ? (
-                        <img src={h.photo} alt={h.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-3xl">✨</div>
-                      )}
-                    </div>
-                    <div className="border-t p-3.5" style={{ borderColor: 'rgba(26,22,18,.12)' }}>
-                      <div className="mb-0.5 text-[9px] uppercase tracking-[0.14em]" style={{ color: dept.color, fontFamily: 'var(--font-os)' }}>
-                        {h.role}
-                      </div>
-                      <div className="font-[family-name:var(--font-serif)] text-base font-bold leading-tight">{h.name}</div>
-                    </div>
-                  </motion.div>
+                    {tag}
+                  </span>
                 ))}
               </div>
+              <div className="mt-6 border-t pt-4 text-[10px] uppercase tracking-[0.14em]" style={{ borderColor: 'rgba(26,22,18,.15)', color: 'rgba(26,22,18,.5)', fontFamily: 'var(--font-os)' }}>
+                Contact — 9374488770
+              </div>
             </div>
-          ))}
-        </div>
-      </section>
+          </motion.div>
+        </StationSection>
 
-      {/* ── 04 · FACULTY ─────────────────────────────────────────────────── */}
-      <section id="faculty" className="mx-auto mt-20 max-w-5xl scroll-mt-10 px-5 sm:px-10">
-        <SectionHead n="04" label="Academic Guidance" title="Faculty Advisors" />
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {FACULTY_CURRENT.map((f, i) => (
-            <motion.div
-              key={f.name}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              className="group relative mx-auto flex w-full max-w-md items-stretch overflow-hidden border"
-              style={{ borderColor: 'rgba(26,22,18,.18)' }}
-            >
-              <div className="flex aspect-[3/4] w-32 flex-shrink-0 items-center justify-center overflow-hidden border-r bg-stone-100/50" style={{ borderColor: 'rgba(26,22,18,.18)' }}>
-                {f.photo ? (
-                  <img src={f.photo} alt={f.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                ) : (
-                  <div className="text-4xl">🎓</div>
-                )}
+        <StationSection id="leadership" n="02" label="Senior Leadership" title="Co-Heads" marginTop="mt-20">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="relative mb-8 h-[320px] overflow-hidden rounded-2xl sm:h-[360px]"
+            style={{ background: 'radial-gradient(ellipse at 50% 30%, #090a1a, #0b0a09)' }}
+          >
+            <Suspense fallback={<CanvasPlaceholder />}>
+              <CoHeadCanvas photos={CO_HEADS.map((c) => c.photo)} accent="#5b6af0" />
+            </Suspense>
+            <div className="absolute bottom-4 left-0 right-0 text-center">
+              <div className="text-[9px] uppercase tracking-[0.25em] opacity-40" style={{ color: '#f3efe5', fontFamily: 'var(--font-os)' }}>
+                ✦ move cursor to pan ✦
               </div>
-              <div className="relative flex flex-grow flex-col justify-center p-5" style={{ background: 'var(--news-bg)' }}>
-                <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: 'var(--news-red)' }} />
-                <div className="mb-1 pl-2 text-[9px] uppercase tracking-[0.18em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
-                  {f.role}
+            </div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+            {CO_HEADS.map((c, i) => (
+              <motion.div
+                key={c.name}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="group relative overflow-hidden border"
+                style={{ borderColor: 'rgba(26,22,18,.18)' }}
+              >
+                <div className="aspect-[3/4] overflow-hidden">
+                  <img src={c.photo} alt={c.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 </div>
-                <div className="pl-2 font-[family-name:var(--font-serif)] text-lg font-black leading-tight">{f.name}</div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        <p className="mt-5 font-[family-name:var(--font-serif)] text-sm italic leading-relaxed" style={{ color: 'rgba(26,22,18,.5)' }}>
-          {FACULTY_NOTE}
-        </p>
-      </section>
+                <div className="border-t p-4" style={{ borderColor: 'rgba(26,22,18,.12)' }}>
+                  <div className="mb-1 text-[9px] uppercase tracking-[0.16em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+                    Co-Head
+                  </div>
+                  <div className="font-[family-name:var(--font-serif)] text-xl font-bold leading-tight">{c.name}</div>
+                  <div className="mt-1 text-[10px] uppercase tracking-[0.1em]" style={{ color: 'rgba(26,22,18,.45)', fontFamily: 'var(--font-os)' }}>
+                    Core Committee · NMIMS
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </StationSection>
+
+        <StationSection
+          id="committee"
+          n="03"
+          label="Core Committee · 2026–27"
+          title="The Organising Crew"
+          sub="Web Development and Cybersecurity branch off in their track's own color — everyone else runs club operations."
+          marginTop="mt-20"
+        >
+          <DepartmentTree departments={DEPARTMENTS} />
+        </StationSection>
+
+        <StationSection id="faculty" n="04" label="Academic Guidance" title="Faculty Advisors" marginTop="mt-20">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {FACULTY_CURRENT.map((f, i) => (
+              <motion.div
+                key={f.name}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="group relative mx-auto flex w-full max-w-md items-stretch overflow-hidden border"
+                style={{ borderColor: 'rgba(26,22,18,.18)' }}
+              >
+                <div className="flex aspect-[3/4] w-32 flex-shrink-0 items-center justify-center overflow-hidden border-r bg-stone-100/50" style={{ borderColor: 'rgba(26,22,18,.18)' }}>
+                  {f.photo ? (
+                    <img src={f.photo} alt={f.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  ) : (
+                    <div className="text-4xl">🎓</div>
+                  )}
+                </div>
+                <div className="relative flex flex-grow flex-col justify-center p-5" style={{ background: 'var(--news-bg)' }}>
+                  <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: 'var(--news-red)' }} />
+                  <div className="mb-1 pl-2 text-[9px] uppercase tracking-[0.18em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+                    {f.role}
+                  </div>
+                  <div className="pl-2 font-[family-name:var(--font-serif)] text-lg font-black leading-tight">{f.name}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <p className="mt-5 font-[family-name:var(--font-serif)] text-sm italic leading-relaxed" style={{ color: 'rgba(26,22,18,.5)' }}>
+            {FACULTY_NOTE}
+          </p>
+        </StationSection>
+      </div>
 
       {/* ── CAMPUS NETWORK — footnote weight ─────────────────────────────── */}
       <section className="mx-auto mt-16 max-w-5xl px-5 sm:px-10">
@@ -351,28 +298,159 @@ export function TeamPage() {
   )
 }
 
-function CanvasPlaceholder() {
+/** One "station" on the main trunk — a small marker that pops in when it
+ *  scrolls to roughly the middle of the viewport, wired to the shared ink
+ *  line running through the whole hierarchy. */
+function StationSection({
+  id,
+  n,
+  label,
+  title,
+  sub,
+  color = 'var(--news-red)',
+  marginTop,
+  children,
+}: {
+  id: string
+  n: string
+  label: string
+  title: string
+  sub?: string
+  color?: string
+  marginTop: string
+  children: React.ReactNode
+}) {
   return (
-    <div className="flex h-full w-full items-center justify-center text-[10px] uppercase tracking-[0.2em]" style={{ color: 'rgba(243,239,229,.3)' }}>
-      Loading…
+    <section id={id} className={`relative z-10 flex scroll-mt-10 gap-3 sm:gap-5 ${marginTop}`}>
+      <div className="hidden w-8 flex-shrink-0 justify-center pt-1.5 sm:flex sm:w-10">
+        <motion.span
+          initial={{ scale: 0 }}
+          whileInView={{ scale: 1 }}
+          viewport={{ once: true, margin: '-45% 0px -45% 0px' }}
+          transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+          className="block h-3.5 w-3.5 rounded-full border-2"
+          style={{ borderColor: color, background: 'var(--news-bg)' }}
+        />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="mb-8">
+          <div className="mb-1 text-[10px] uppercase tracking-[0.15em]" style={{ color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
+            § {n} — <span style={{ color }}>{label}</span>
+          </div>
+          <h2 className="border-b-[3px] pb-2 font-[family-name:var(--font-serif)] font-black" style={{ fontSize: 'clamp(1.5rem,3vw,2.2rem)', borderColor: 'var(--news-ink)' }}>
+            {title}
+          </h2>
+          {sub && (
+            <p className="mt-2 max-w-xl text-sm italic leading-relaxed" style={{ color: 'rgba(26,22,18,.5)' }}>
+              {sub}
+            </p>
+          )}
+        </div>
+        {children}
+      </div>
+    </section>
+  )
+}
+
+interface Dept {
+  name: string
+  color: string
+  desc: string
+  heads: { name: string; role: string; photo?: string }[]
+}
+
+/** The six committees as branches off a secondary, shorter ink line nested
+ *  inside "Core Committee" — a tree growing off the main trunk, not another
+ *  flat repeat of it. Each branch draws in as its own department scrolls by. */
+function DepartmentTree({ departments }: { departments: Dept[] }) {
+  const treeRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: branchLine } = useScroll({ target: treeRef, offset: ['start end', 'end center'] })
+
+  return (
+    <div ref={treeRef} className="relative space-y-14">
+      <motion.div
+        aria-hidden
+        className="absolute left-4 top-0 hidden w-px sm:block"
+        style={{ height: '100%', background: 'var(--news-ink)', scaleY: branchLine, transformOrigin: 'top', opacity: 0.25 }}
+      />
+
+      {departments.map((dept, di) => (
+        <div key={dept.name} className="relative flex gap-3 sm:gap-5">
+          <div className="hidden w-8 flex-shrink-0 justify-center pt-2 sm:flex sm:w-10">
+            <motion.span
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true, margin: '-40% 0px -40% 0px' }}
+              transition={{ type: 'spring', stiffness: 340, damping: 22 }}
+              className="block h-3 w-3 rounded-full"
+              style={{ background: dept.color }}
+            />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            {/* Department masthead: ghost numeral + name + mission line, in that dept's own color */}
+            <div className="relative mb-7 flex items-end gap-3 border-b-4 pb-3 sm:gap-5" style={{ borderColor: dept.color }}>
+              <span
+                className="select-none font-[family-name:var(--font-serif)] font-black leading-[0.75]"
+                style={{ fontSize: 'clamp(2.6rem,6vw,4.4rem)', color: dept.color, opacity: 0.16 }}
+              >
+                0{di + 1}
+              </span>
+              <div className="pb-1">
+                <div className="flex flex-wrap items-baseline gap-2">
+                  <h3 className="font-[family-name:var(--font-serif)] font-black leading-tight" style={{ fontSize: 'clamp(1.4rem,3vw,2rem)' }}>
+                    {dept.name}
+                  </h3>
+                  <span className="text-[9px] uppercase tracking-[0.14em]" style={{ color: dept.color, fontFamily: 'var(--font-os)' }}>
+                    · {dept.heads.length} Head{dept.heads.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+                <p className="mt-1 max-w-lg text-sm italic leading-relaxed" style={{ color: 'rgba(26,22,18,.55)' }}>
+                  {dept.desc}
+                </p>
+              </div>
+            </div>
+
+            {/* Heads — sized to the department's real headcount, not a fixed grid */}
+            <div className={`grid grid-cols-2 gap-5 ${dept.heads.length >= 3 ? 'sm:grid-cols-3' : 'max-w-md sm:grid-cols-2'}`}>
+              {dept.heads.map((h, i) => (
+                <motion.div
+                  key={h.name}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="group relative overflow-hidden border transition-shadow duration-300 hover:shadow-lg"
+                  style={{ borderColor: 'rgba(26,22,18,.18)' }}
+                >
+                  <span className="absolute inset-x-0 top-0 z-10 h-[3px]" style={{ background: dept.color }} />
+                  <div className="aspect-[3/4] overflow-hidden bg-stone-100">
+                    {h.photo ? (
+                      <img src={h.photo} alt={h.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-3xl">✨</div>
+                    )}
+                  </div>
+                  <div className="border-t p-3.5" style={{ borderColor: 'rgba(26,22,18,.12)' }}>
+                    <div className="mb-0.5 text-[9px] uppercase tracking-[0.14em]" style={{ color: dept.color, fontFamily: 'var(--font-os)' }}>
+                      {h.role}
+                    </div>
+                    <div className="font-[family-name:var(--font-serif)] text-base font-bold leading-tight">{h.name}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
 
-function SectionHead({ n, label, title, sub }: { n: string; label: string; title: string; sub?: string }) {
+function CanvasPlaceholder() {
   return (
-    <div className="mb-8">
-      <div className="mb-1 text-[10px] uppercase tracking-[0.15em]" style={{ color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
-        § {n} — <span style={{ color: 'var(--news-red)' }}>{label}</span>
-      </div>
-      <h2 className="border-b-[3px] pb-2 font-[family-name:var(--font-serif)] font-black" style={{ fontSize: 'clamp(1.5rem,3vw,2.2rem)', borderColor: 'var(--news-ink)' }}>
-        {title}
-      </h2>
-      {sub && (
-        <p className="mt-2 max-w-xl text-sm italic leading-relaxed" style={{ color: 'rgba(26,22,18,.5)' }}>
-          {sub}
-        </p>
-      )}
+    <div className="flex h-full w-full items-center justify-center text-[10px] uppercase tracking-[0.2em]" style={{ color: 'rgba(243,239,229,.3)' }}>
+      Loading…
     </div>
   )
 }
