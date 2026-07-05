@@ -15,13 +15,24 @@ const CO_HEADS = [
 
 const FACULTY_CURRENT = FACULTY.filter((f) => f.name !== 'Prof. Pratiksha Meshram')
 
-// Two committees run the site's own technical tracks, so they inherit that
-// track's accent color — a meaningful signal, not decoration. Everything
-// else (operations/support committees) shares one calm, neutral treatment.
+// Each committee gets its own accent — a mix of the site's real department
+// colors (Web/Cybersecurity, borrowed from DEPTS so they stay tied to the
+// tracks they actually run) plus a few more ink tones for the operations
+// committees, so all six read as distinct mastheads, not one grey pile.
 const DEPARTMENTS = [
+  {
+    name: 'Event Management',
+    color: 'var(--news-red)',
+    desc: 'Planning, scheduling, logistics, and execution of tech events across campuses.',
+    heads: [
+      { name: 'Nishtha Ghatiya', role: 'Event Mgmt Head', photo: '/team/nishtha_ghatiya.jpeg' },
+      { name: 'Sharva Shenoy', role: 'Event Mgmt Head', photo: '/team/sharva_shenoy.jpeg' },
+    ],
+  },
   {
     name: 'Web Development',
     color: DEPTS.web.acc,
+    desc: 'Engineering core club infrastructure, platforms, and interactive dashboards.',
     heads: [
       { name: 'Panth Haveliwala', role: 'Web Dev Head', photo: '/team/panth_haveliwala.jpeg' },
       { name: 'Jay Damani', role: 'Web Dev Head', photo: '/team/jay_damani.jpeg' },
@@ -31,30 +42,25 @@ const DEPARTMENTS = [
   {
     name: 'Cybersecurity',
     color: DEPTS.sec.acc,
+    desc: 'Leading CTFs, security audits, training tracks, and infrastructure defense.',
     heads: [
       { name: 'Kushal Khadse', role: 'Cybersec Head', photo: '/team/kushal_khadse.png' },
       { name: 'Parth Pawar', role: 'Cybersec Head', photo: '/team/parth_pawar.jpeg' },
     ],
   },
   {
-    name: 'Event Management',
-    color: null,
-    heads: [
-      { name: 'Nishtha Ghatiya', role: 'Event Mgmt Head', photo: '/team/nishtha_ghatiya.jpeg' },
-      { name: 'Sharva Shenoy', role: 'Event Mgmt Head', photo: '/team/sharva_shenoy.jpeg' },
-    ],
-  },
-  {
-    name: 'Documentation',
-    color: null,
+    name: 'Documentation & PR',
+    color: 'var(--amber)',
+    desc: 'Crafting official publications, event summaries, and club press relations.',
     heads: [
       { name: 'Yash Bharadwaj', role: 'Documentation Head', photo: '/team/yash_bharadwaj.jpeg' },
       { name: 'Chahat Saraf', role: 'Documentation Head', photo: '/team/chahat_saraf.jpeg' },
     ],
   },
   {
-    name: 'Marketing',
-    color: null,
+    name: 'Marketing & Sponsorships',
+    color: DEPTS.dsa.acc,
+    desc: 'Managing corporate relations, funding acquisitions, and campus outreach.',
     heads: [
       { name: 'Atharva Khandelwal', role: 'Marketing Head', photo: '/team/atharva_khandelwal.jpeg' },
       { name: 'Priyansh Jain', role: 'Marketing Head', photo: '/team/priyansh_jain.jpeg' },
@@ -62,7 +68,8 @@ const DEPARTMENTS = [
   },
   {
     name: 'Creative & Social Media',
-    color: null,
+    color: '#6D3B8E',
+    desc: 'Designing brand guidelines, visual assets, and high-impact digital presence.',
     heads: [
       { name: 'Shlok Patel', role: 'Creative Head', photo: '/team/shlok_patel.jpeg' },
       { name: 'Disha Bhagat', role: 'Creative Head', photo: '/team/disha_bhagat.jpeg' },
@@ -70,16 +77,10 @@ const DEPARTMENTS = [
   },
 ]
 
-// Flattened for the unified roster grid — one committee tag per card
-// instead of six separately-headed, near-identical mini-sections.
-const ROSTER = DEPARTMENTS.flatMap((dept) =>
-  dept.heads.map((h) => ({ ...h, committee: dept.name, color: dept.color }))
-)
-
 const QUICK_NAV = [
   ['president', 'The President'],
   ['leadership', 'Co-Heads'],
-  ['roster', 'The Roster'],
+  ['committee', 'Core Committee'],
   ['faculty', 'Faculty'],
   ['contact', 'Contact'],
 ] as const
@@ -222,44 +223,71 @@ export function TeamPage() {
         </div>
       </section>
 
-      {/* ── 03 · THE ROSTER — unified, color-tagged, no repetition ──────── */}
-      <section id="roster" className="mx-auto mt-20 max-w-5xl scroll-mt-10 px-5 sm:px-10">
-        <SectionHead
-          n="03"
-          label="Core Committee · 2026–27"
-          title="The Roster"
-          sub="Web Development and Cybersecurity carry their track's accent color — everyone else runs club operations."
-        />
+      {/* ── 03 · CORE COMMITTEE — six separate department mastheads ─────── */}
+      <section id="committee" className="mx-auto mt-20 max-w-5xl scroll-mt-10 px-5 sm:px-10">
+        <SectionHead n="03" label="Core Committee · 2026–27" title="The Organising Crew" />
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-          {ROSTER.map((c, i) => (
-            <motion.div
-              key={c.name}
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: Math.min(i * 0.04, 0.4) }}
-              className="group relative overflow-hidden border"
-              style={{ borderColor: 'rgba(26,22,18,.18)' }}
-            >
-              <span className="absolute inset-x-0 top-0 z-10 h-[3px]" style={{ background: c.color || 'rgba(26,22,18,.25)' }} />
-              <div className="aspect-[3/4] overflow-hidden bg-stone-100">
-                {c.photo ? (
-                  <img src={c.photo} alt={c.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-3xl">✨</div>
-                )}
-              </div>
-              <div className="border-t p-3" style={{ borderColor: 'rgba(26,22,18,.12)' }}>
-                <div
-                  className="mb-1 text-[8px] uppercase tracking-[0.12em]"
-                  style={{ color: c.color || 'var(--news-red)', fontFamily: 'var(--font-os)' }}
+        <div className="space-y-16">
+          {DEPARTMENTS.map((dept, di) => (
+            <div key={dept.name}>
+              {/* Department masthead: ghost numeral + name + mission line, in that dept's own color */}
+              <div className="relative mb-7 flex items-end gap-3 border-b-4 pb-3 sm:gap-5" style={{ borderColor: dept.color }}>
+                <span
+                  className="select-none font-[family-name:var(--font-serif)] font-black leading-[0.75]"
+                  style={{ fontSize: 'clamp(2.6rem,6vw,4.4rem)', color: dept.color, opacity: 0.16 }}
                 >
-                  {c.committee}
+                  0{di + 1}
+                </span>
+                <div className="pb-1">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <h3 className="font-[family-name:var(--font-serif)] font-black leading-tight" style={{ fontSize: 'clamp(1.4rem,3vw,2rem)' }}>
+                      {dept.name}
+                    </h3>
+                    <span
+                      className="text-[9px] uppercase tracking-[0.14em]"
+                      style={{ color: dept.color, fontFamily: 'var(--font-os)' }}
+                    >
+                      · {dept.heads.length} Head{dept.heads.length > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <p className="mt-1 max-w-lg text-sm italic leading-relaxed" style={{ color: 'rgba(26,22,18,.55)' }}>
+                    {dept.desc}
+                  </p>
                 </div>
-                <div className="font-[family-name:var(--font-serif)] text-sm font-bold leading-tight">{c.name}</div>
               </div>
-            </motion.div>
+
+              {/* Heads — sized to the department's real headcount, not a fixed grid */}
+              <div
+                className={`grid grid-cols-2 gap-5 ${dept.heads.length >= 3 ? 'sm:grid-cols-3' : 'max-w-md sm:grid-cols-2'}`}
+              >
+                {dept.heads.map((h, i) => (
+                  <motion.div
+                    key={h.name}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.08 }}
+                    className="group relative overflow-hidden border transition-shadow duration-300 hover:shadow-lg"
+                    style={{ borderColor: 'rgba(26,22,18,.18)' }}
+                  >
+                    <span className="absolute inset-x-0 top-0 z-10 h-[3px]" style={{ background: dept.color }} />
+                    <div className="aspect-[3/4] overflow-hidden bg-stone-100">
+                      {h.photo ? (
+                        <img src={h.photo} alt={h.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-3xl">✨</div>
+                      )}
+                    </div>
+                    <div className="border-t p-3.5" style={{ borderColor: 'rgba(26,22,18,.12)' }}>
+                      <div className="mb-0.5 text-[9px] uppercase tracking-[0.14em]" style={{ color: dept.color, fontFamily: 'var(--font-os)' }}>
+                        {h.role}
+                      </div>
+                      <div className="font-[family-name:var(--font-serif)] text-base font-bold leading-tight">{h.name}</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </section>
