@@ -43,7 +43,7 @@ const DEPARTMENTS = [
     color: DEPTS.sec.acc,
     desc: 'Leading CTFs, security audits, training tracks, and infrastructure defense.',
     heads: [
-      { name: 'Kushal Khadse', role: 'Cybersec Head', photo: '/team/kushal_khadse.png' },
+      { name: 'Kushal Khadse', role: 'Cybersec Head', photo: '/team/kushal_khadse.jpeg' },
       { name: 'Parth Pawar', role: 'Cybersec Head', photo: '/team/parth_pawar.jpeg' },
     ],
   },
@@ -232,9 +232,8 @@ export function TeamPage() {
         <StationSection
           id="committee"
           n="03"
-          label="Core Committee · 2026–27"
-          title="The Organising Crew"
-          sub="Web Development and Cybersecurity branch off in their track's own color — everyone else runs club operations."
+          label="Departmental Heads · 2026–27"
+          title="Departmental Heads"
           marginTop="mt-20"
         >
           <DepartmentTree departments={DEPARTMENTS} />
