@@ -3,12 +3,12 @@ import { SOCIAL } from '@/lib/content'
 
 export function JoinPage() {
   const divisions = [
-    { name: 'Event Management', desc: 'Planning, scheduling, logistics, and execution of tech events across campuses.' },
-    { name: 'Web Development', desc: 'Engineering core club infrastructure, platforms, and interactive dashboards.' },
-    { name: 'Cybersecurity', desc: 'Leading CTFs, security audits, training tracks, and infrastructure defense.' },
-    { name: 'Documentation & PR', desc: 'Crafting official publications, event summaries, and club press relations.' },
-    { name: 'Marketing & Sponsorships', desc: 'Managing corporate relations, funding acquisitions, and campus outreach.' },
-    { name: 'Creative & Social Media', desc: 'Designing brand guidelines, visual assets, and high-impact digital presence.' },
+    { name: 'Event Management', desc: 'Planning, scheduling, logistics, and execution of tech events across campuses.', leads: 'Nishtha Ghatiya & Sharva Shenoy' },
+    { name: 'Web Development', desc: 'Engineering core club infrastructure, platforms, and interactive dashboards.', leads: 'Panth Haveliwala, Jay Damani & Ishan Dadape' },
+    { name: 'Cybersecurity', desc: 'Leading CTFs, security audits, training tracks, and infrastructure defense.', leads: 'Kushal Khadse & Parth Pawar' },
+    { name: 'Documentation & PR', desc: 'Crafting official publications, event summaries, and club press relations.', leads: 'Yash Bharadwaj & Chahat Saraf' },
+    { name: 'Marketing & Sponsorships', desc: 'Managing corporate relations, funding acquisitions, and campus outreach.', leads: 'Atharva Khandelwal & Priyansh Jain' },
+    { name: 'Creative & Social Media', desc: 'Designing brand guidelines, visual assets, and high-impact digital presence.', leads: 'Shlok Patel & Disha Bhagat' },
   ]
 
   return (
@@ -48,6 +48,9 @@ export function JoinPage() {
                   </span>
                 </div>
                 <p className="text-xs leading-relaxed" style={{ color: 'rgba(26,22,18,.55)' }}>{d.desc}</p>
+                <div className="mt-3 text-[9px] uppercase tracking-[0.06em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+                  Led by: <span className="font-bold" style={{ color: 'var(--news-ink)' }}>{d.leads}</span>
+                </div>
               </div>
             </div>
           ))}

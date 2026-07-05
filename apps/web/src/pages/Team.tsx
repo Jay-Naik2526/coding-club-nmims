@@ -14,6 +14,52 @@ const CO_HEADS = [
 
 const FACULTY_CURRENT = FACULTY.filter((f) => f.name !== 'Prof. Pratiksha Meshram')
 
+const DEPARTMENTS = [
+  {
+    name: 'Event Management',
+    heads: [
+      { name: 'Nishtha Ghatiya', role: 'Event Mgmt Head', photo: '/team/nishtha_ghatiya.jpeg' },
+      { name: 'Sharva Shenoy', role: 'Event Mgmt Head', photo: '/team/sharva_shenoy.jpeg' },
+    ]
+  },
+  {
+    name: 'Marketing',
+    heads: [
+      { name: 'Atharva Khandelwal', role: 'Marketing Head', photo: '/team/atharva_khandelwal.jpeg' },
+      { name: 'Priyansh Jain', role: 'Marketing Head', photo: '/team/priyansh_jain.jpeg' },
+    ]
+  },
+  {
+    name: 'Web Development',
+    heads: [
+      { name: 'Panth Haveliwala', role: 'Web Dev Head', photo: '/team/panth_haveliwala.jpeg' },
+      { name: 'Jay Damani', role: 'Web Dev Head', photo: '/team/jay_damani.jpeg' },
+      { name: 'Ishan Dadape', role: 'Web Dev Head', photo: '/team/ishan_dadape.jpeg' },
+    ]
+  },
+  {
+    name: 'Cybersecurity',
+    heads: [
+      { name: 'Kushal Khadse', role: 'Cybersec Head', photo: '/team/kushal_khadse.png' },
+      { name: 'Parth Pawar', role: 'Cybersec Head', photo: '/team/parth_pawar.jpeg' },
+    ]
+  },
+  {
+    name: 'Documentation',
+    heads: [
+      { name: 'Yash Bharadwaj', role: 'Documentation Head', photo: '/team/yash_bharadwaj.jpeg' },
+      { name: 'Chahat Saraf', role: 'Documentation Head', photo: '/team/chahat_saraf.jpeg' },
+    ]
+  },
+  {
+    name: 'Creative & Social Media',
+    heads: [
+      { name: 'Shlok Patel', role: 'Creative Head', photo: '/team/shlok_patel.jpeg' },
+      { name: 'Disha Bhagat', role: 'Creative Head', photo: null },
+    ]
+  }
+]
+
 export function TeamPage() {
   return (
     <>
@@ -155,62 +201,82 @@ export function TeamPage() {
       <section className="mx-auto mt-20 max-w-5xl px-5 sm:px-10">
         <SectionHead n="03" label="Core Committee" title="The Organising Crew" />
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative overflow-hidden border-2 p-8 sm:p-12 text-center"
-          style={{ borderColor: 'var(--news-ink)' }}
-        >
-          {/* red top stripe */}
-          <span className="absolute inset-x-0 top-0 h-1.5" style={{ background: 'var(--news-red)' }} />
-
-          <div className="text-[9px] uppercase tracking-[0.3em] mb-4" style={{ color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
-            Stop Press · Selections Complete
+        <div className="mb-10 border-2 p-6 sm:p-8 text-center" style={{ borderColor: 'var(--news-ink)' }}>
+          <div className="text-[9px] uppercase tracking-[0.3em] mb-2" style={{ color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
+            Stop Press · Selections Finalised
           </div>
-          <h3 className="font-[family-name:var(--font-serif)] font-black leading-tight mb-4" style={{ fontSize: 'clamp(1.6rem,3vw,2.4rem)' }}>
-            Core Committee 2026–27 Formed
+          <h3 className="font-[family-name:var(--font-serif)] font-black leading-tight mb-3" style={{ fontSize: 'clamp(1.5rem,3vw,2rem)' }}>
+            Meet the Department Heads · 2026–27
           </h3>
-          <p className="mx-auto max-w-xl text-sm leading-relaxed mb-8" style={{ color: 'rgba(26,22,18,.6)' }}>
-            The selection process for the Coding Club Core Committee is complete. We have successfully onboarded coordinators across all divisions to execute our long-term vision and events.
+          <p className="mx-auto max-w-xl text-sm leading-relaxed" style={{ color: 'rgba(26,22,18,.6)' }}>
+            The leaders responsible for orchestrating event logistics, technical development, cybersecurity labs, documentation, marketing, and creative presence across our campuses.
           </p>
+        </div>
 
-          {/* placeholder slots */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6 mb-8">
-            {[
-              { name: 'Event Mgmt', status: 'Staffed' },
-              { name: 'Web Dev', status: 'Staffed' },
-              { name: 'Cybersec', status: 'Staffed' },
-              { name: 'Docs & PR', status: 'Staffed' },
-              { name: 'Marketing', status: 'Staffed' },
-              { name: 'Creative', status: 'Staffed' }
-            ].map((dept) => (
-              <div
-                key={dept.name}
-                className="border py-6 flex flex-col items-center gap-2"
-                style={{ borderColor: 'rgba(26,22,18,.15)', background: 'rgba(26,22,18,.01)' }}
-              >
-                <div className="h-10 w-10 rounded-full border flex items-center justify-center text-sm font-bold text-green-600 bg-green-50/50" style={{ borderColor: 'rgba(16,185,129,.3)' }}>
-                  ✓
-                </div>
-                <div className="text-[9px] uppercase tracking-[0.1em] font-semibold" style={{ color: 'rgba(26,22,18,.7)', fontFamily: 'var(--font-os)' }}>
+        <div className="space-y-16">
+          {DEPARTMENTS.map((dept) => (
+            <div key={dept.name}>
+              {/* Department title */}
+              <div className="mb-6 flex items-center justify-between border-b pb-2" style={{ borderColor: 'rgba(26,22,18,.15)' }}>
+                <h3 className="font-[family-name:var(--font-serif)] font-black text-lg sm:text-xl" style={{ color: 'var(--news-ink)' }}>
                   {dept.name}
-                </div>
-                <div className="text-[8px] uppercase tracking-[0.1em]" style={{ color: '#10b981', fontFamily: 'var(--font-os)' }}>
-                  {dept.status}
+                </h3>
+                <div className="text-[9px] uppercase tracking-[0.15em] font-semibold" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+                  Division Head{dept.heads.length > 1 ? 's' : ''}
                 </div>
               </div>
-            ))}
-          </div>
 
-          <a
-            href="/join"
-            className="cc-hover inline-block px-8 py-3 text-[11px] uppercase tracking-[0.14em] text-white"
-            style={{ background: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}
-          >
-            Selection Briefing →
-          </a>
-        </motion.div>
+              {/* Heads Grid */}
+              <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
+                {dept.heads.map((c, i) => (
+                  <motion.div
+                    key={c.name}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                    className="group relative overflow-hidden border flex flex-col"
+                    style={{ borderColor: 'rgba(26,22,18,.18)' }}
+                  >
+                    {/* photo */}
+                    <div className="aspect-[3/4] overflow-hidden bg-stone-100 flex items-center justify-center relative">
+                      {c.photo ? (
+                        <img
+                          src={c.photo}
+                          alt={c.name}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="text-4xl select-none">✨</div>
+                      )}
+                      {!c.photo && (
+                        <div className="absolute inset-0 flex items-end justify-center pb-4 bg-black/5">
+                          <span className="text-[8px] uppercase tracking-wider bg-white/95 px-2 py-0.5 rounded border shadow-sm" style={{ fontFamily: 'var(--font-os)', color: 'var(--news-ink)' }}>
+                            Coming Soon
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    {/* info */}
+                    <div className="border-t p-3 flex-grow flex flex-col justify-between" style={{ borderColor: 'rgba(26,22,18,.12)', background: 'var(--news-bg)' }}>
+                      <div>
+                        <div className="text-[8px] uppercase tracking-[0.14em] mb-0.5" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+                          {c.role}
+                        </div>
+                        <div className="font-[family-name:var(--font-serif)] text-sm font-bold leading-tight text-stone-900">
+                          {c.name}
+                        </div>
+                      </div>
+                      <div className="mt-2 text-[8px] uppercase tracking-[0.08em]" style={{ color: 'rgba(26,22,18,.45)', fontFamily: 'var(--font-os)' }}>
+                        Coding Club
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* ── FACULTY ──────────────────────────────────────────────────────── */}
