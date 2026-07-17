@@ -37,6 +37,8 @@ rollup.config.*.timestamp*
 
 # ── OS cruft ─────────────────────────────────────────────────────────────────
 .DS_Store
+._*
+.claude/
 Thumbs.db
 desktop.ini
 

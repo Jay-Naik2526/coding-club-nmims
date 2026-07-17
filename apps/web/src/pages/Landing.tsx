@@ -95,11 +95,11 @@ export function Landing() {
             <div className="mb-5 flex flex-col items-center gap-3 lg:items-end">
               <div
                 onClick={() => wipeTo('/join')}
-                className="inline-flex items-center gap-2 rounded-full border px-4 py-1 text-[9px] uppercase tracking-[0.15em] cursor-pointer hover:bg-white/5 transition-colors"
-                style={{ borderColor: 'rgba(243,239,229,.25)', color: '#fff', fontFamily: 'var(--font-os)' }}
+                className="inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.15em] cursor-pointer hover:bg-white/5 transition-colors"
+                style={{ borderColor: 'rgba(243,239,229,.4)', color: '#fff', fontFamily: 'var(--font-os)' }}
               >
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" style={{ backgroundColor: '#10b981' }} />
-                <span>Core Committee 2026–27 Selected & Formed →</span>
+                <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse" style={{ backgroundColor: '#ff3b30' }} />
+                <span>OC Recruitment 2026–27 — Applications Open →</span>
               </div>
               <div className="text-[10px] uppercase tracking-[0.35em]" style={{ color: 'rgba(243,239,229,.5)' }}>
                 NMIMS MPSTME · Code. Collaborate. Create.

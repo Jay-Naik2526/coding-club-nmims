@@ -257,6 +257,44 @@ body {
   }
 }
 
+/* OC recruitment page — small theme additions */
+@keyframes oc-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.oc-pulse {
+  animation: oc-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes oc-cta-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(200, 0, 42, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(200, 0, 42, 0);
+  }
+}
+.oc-cta {
+  animation: oc-cta-glow 2.4s ease-in-out infinite;
+}
+
+.oc-stamp {
+  border: 3px double var(--news-red);
+  color: var(--news-red);
+  transform: rotate(-8deg);
+}
+
+.oc-radio:has(input:checked) {
+  border-color: var(--news-red);
+  background: rgba(200, 0, 42, 0.06);
+}
+
 /* respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   * {
