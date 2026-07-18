@@ -67,7 +67,7 @@ export const PROGRAMS: Program[] = [
 ]
 
 export const FACULTY = [
-  { name: 'Prof. Suraj Patil', role: 'Faculty Advisor', photo: '/team/SurajPatil.jpeg' },
+  { name: 'Prof. Durgesh Sharma', role: 'Faculty Advisor', photo: '/team/DurgeshSharma.png' },
   { name: 'Prof. Praveen Landge', role: 'Faculty Advisor', photo: '/team/PraveenLandge.jpeg' },
 ]
 
