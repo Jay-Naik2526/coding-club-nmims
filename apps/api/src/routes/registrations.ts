@@ -37,8 +37,8 @@ const sendTicketEmail = async (user: any, event: any, pdfBuffer: Buffer) => {
           <h2 style="color: #e00000; border-bottom: 2px solid #111; padding-bottom: 10px;">CODING CLUB NMIMS</h2>
           <p>Hi <strong>${user.name}</strong>,</p>
           <p>Your entry registration for <strong>${event.title}</strong> has been successfully confirmed!</p>
-          <p><strong>Date:</strong> ${new Date(event.startDate).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-          <p><strong>Time:</strong> ${new Date(event.startDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+          <p><strong>Date:</strong> ${new Date(event.startDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          <p><strong>Time:</strong> ${new Date(event.startDate).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })} – ${new Date(event.endDate).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}</p>
           <p>Your official PDF ticket pass has been attached. Please present the QR code on arrival at the venue.</p>
           <br />
           <p>Best regards,<br/><strong>Coding Club MPSTME, Shirpur</strong></p>

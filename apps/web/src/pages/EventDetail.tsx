@@ -78,9 +78,14 @@ export function EventDetailPage() {
   const cfg = DEPTS[ev.department as keyof typeof DEPTS]
   const bannerSrc = toDirectImageUrl(ev.bannerUrl)
 
+  // Not logged in → send to signup, carrying a return path back to this event.
+  const redirectToSignup = () => {
+    navigate(`/signup?next=${encodeURIComponent(`/events/${slug}`)}`);
+  };
+
   const handleSoloRegister = async () => {
     if (!user) {
-      alert('Please sign in first — use the Login link at the top right of the page.');
+      redirectToSignup();
       return;
     }
     setIsRegistering(true);
@@ -100,7 +105,7 @@ export function EventDetailPage() {
   const handleTeamRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert('Please sign in first — use the Login link at the top right of the page.');
+      redirectToSignup();
       return;
     }
     if (!teamName.trim()) {
@@ -287,7 +292,14 @@ export function EventDetailPage() {
               <div>
                 <button
                   disabled={closed || isRegistering}
-                  onClick={ev.type === 'SOLO' ? handleSoloRegister : () => setShowTeamForm(true)}
+                  onClick={() => {
+                    if (!user) {
+                      redirectToSignup();
+                      return;
+                    }
+                    if (ev.type === 'SOLO') handleSoloRegister();
+                    else setShowTeamForm(true);
+                  }}
                   className="cc-hover w-full py-3 text-[11px] uppercase tracking-[0.12em] text-center"
                   style={{
                     background: closed ? 'rgba(26,22,18,.15)' : 'var(--news-ink)',
@@ -298,6 +310,11 @@ export function EventDetailPage() {
                 >
                   {closed ? 'REGISTRATION CLOSED' : isRegistering ? 'REGISTERING…' : `REGISTER — ${ev.type}`}
                 </button>
+                {!user && !closed && (
+                  <p className="mt-2 text-[9px] leading-relaxed" style={{ color: 'rgba(26,22,18,.5)', fontFamily: 'var(--font-os)' }}>
+                    You'll need a free student account — signup takes a minute and you'll come right back.
+                  </p>
+                )}
               </div>
             )}
 

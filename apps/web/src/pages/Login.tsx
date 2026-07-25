@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import axios from 'axios'
 import { useApp } from '@/store/useApp'
@@ -9,7 +9,12 @@ const inputStyle = { borderColor: 'rgba(26,22,18,.3)' }
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { fetchUser } = useApp()
+
+  // Only honor same-site paths ('/...' but not '//...') to prevent open redirects.
+  const rawNext = searchParams.get('next')
+  const next = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : null
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,7 +29,7 @@ export function LoginPage() {
     try {
       await api.post('/auth/login', { email, password })
       await fetchUser()
-      navigate('/profile')
+      navigate(next || '/profile', { replace: true })
     } catch (err) {
       const message = axios.isAxiosError(err) ? err.response?.data?.error : undefined
       setError(message || 'Invalid credentials. Please try again.')
@@ -127,7 +132,7 @@ export function LoginPage() {
 
           <p className="mt-6 text-center text-[10px] leading-relaxed" style={{ color: 'rgba(26,22,18,.5)' }}>
             New here?{' '}
-            <Link to="/signup" className="underline" style={{ color: 'var(--news-red)' }}>
+            <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`} className="underline" style={{ color: 'var(--news-red)' }}>
               Create an account →
             </Link>
           </p>

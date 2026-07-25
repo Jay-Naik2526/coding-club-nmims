@@ -22,8 +22,8 @@ interface TicketData {
   teamMembers: { name: string; email: string }[]
 }
 
-const dateFmt = new Intl.DateTimeFormat('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
-const timeFmt = new Intl.DateTimeFormat('en-IN', { hour: '2-digit', minute: '2-digit' })
+const dateFmt = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+const timeFmt = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })
 
 export function TicketPage() {
   const { id } = useParams()
@@ -42,7 +42,7 @@ export function TicketPage() {
           § Session Intercept
         </div>
         <h1 className="mb-4 font-[family-name:var(--font-serif)] font-black text-3xl leading-none">Sign in required</h1>
-        <Link to="/login" className="mt-2 inline-block border px-6 py-2.5 text-[10px] uppercase tracking-[0.14em]" style={{ borderColor: 'var(--news-ink)' }}>
+        <Link to={`/login?next=${encodeURIComponent(`/ticket/${id}`)}`} className="mt-2 inline-block border px-6 py-2.5 text-[10px] uppercase tracking-[0.14em]" style={{ borderColor: 'var(--news-ink)' }}>
           Sign In →
         </Link>
       </section>

@@ -105,11 +105,22 @@ export const generateTicketPdf = async (registration: any, event: any, user: any
   page.drawText(String(registration._id), { x: 25, y: 60, size: 8, font: fontRegular, color: rgb(0.1, 0.1, 0.1) });
 
   page.drawText('DATE & TIME', { x: 25, y: 125, size: 8, font: fontRegular, color: rgb(0.5, 0.5, 0.5) });
-  page.drawText(new Date(event.startDate).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }), {
+  page.drawText(new Date(event.startDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'long', year: 'numeric' }), {
     x: 25,
     y: 110,
     size: 10,
     font: fontBold,
+    color: rgb(0.1, 0.1, 0.1),
+  });
+
+  // Venue-local (IST) time range below the date
+  const istTime = (d: string | Date) =>
+    new Date(d).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+  page.drawText(`${istTime(event.startDate)} – ${istTime(event.endDate)}`, {
+    x: 25,
+    y: 96,
+    size: 9,
+    font: fontRegular,
     color: rgb(0.1, 0.1, 0.1),
   });
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import axios from 'axios'
 import { useApp } from '@/store/useApp'
@@ -13,7 +13,12 @@ const inputStyle = { borderColor: 'rgba(26,22,18,.3)' }
 
 export function SignupPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { fetchUser } = useApp()
+
+  // Only honor same-site paths ('/...' but not '//...') to prevent open redirects.
+  const rawNext = searchParams.get('next')
+  const next = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : null
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -43,7 +48,7 @@ export function SignupPage() {
     try {
       await api.post('/auth/signup', { name, email, password, sapId, course, branch, year })
       await fetchUser()
-      navigate('/profile')
+      navigate(next || '/profile', { replace: true })
     } catch (err) {
       const message = axios.isAxiosError(err) ? err.response?.data?.error : undefined
       setError(message || 'Could not create account. Please try again.')
@@ -74,7 +79,9 @@ export function SignupPage() {
               Join the Club
             </h1>
             <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed" style={{ color: 'rgba(26,22,18,.6)' }}>
-              Create an account to register for events, get your entry ticket, and track your XP.
+              {next?.startsWith('/events/')
+                ? "Create your free account to finish registering — we'll send you straight back to the event."
+                : 'Create an account to register for events, get your entry ticket, and track your XP.'}
             </p>
           </div>
 
@@ -216,7 +223,7 @@ export function SignupPage() {
 
           <p className="mt-6 text-center text-[10px] leading-relaxed" style={{ color: 'rgba(26,22,18,.5)' }}>
             Already have an account?{' '}
-            <Link to="/login" className="underline" style={{ color: 'var(--news-red)' }}>
+            <Link to={`/login${next ? `?next=${encodeURIComponent(next)}` : ''}`} className="underline" style={{ color: 'var(--news-red)' }}>
               Sign in →
             </Link>
           </p>

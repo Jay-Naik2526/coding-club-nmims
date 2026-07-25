@@ -259,6 +259,14 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
     setFormOpen(true)
   }
 
+  // datetime-local inputs expect wall-clock local time, not UTC — shifting by the
+  // timezone offset before slicing keeps the picker (and each re-save) accurate.
+  const toLocalInput = (d: string | Date) => {
+    const dt = new Date(d)
+    dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset())
+    return dt.toISOString().slice(0, 16)
+  }
+
   const handleOpenEdit = (ev: any) => {
     setEditingEvent(ev)
     setTitle(ev.title)
@@ -268,9 +276,9 @@ function EventsCrudView({ events, isLoading, queryClient }: { events: any[]; isL
     setType(ev.type)
     setMinTeamSize(ev.minTeamSize || 1)
     setMaxTeamSize(ev.maxTeamSize || 1)
-    setStartDate(new Date(ev.startDate).toISOString().slice(0, 16))
-    setEndDate(new Date(ev.endDate).toISOString().slice(0, 16))
-    setRegistrationDeadline(new Date(ev.registrationDeadline).toISOString().slice(0, 16))
+    setStartDate(toLocalInput(ev.startDate))
+    setEndDate(toLocalInput(ev.endDate))
+    setRegistrationDeadline(toLocalInput(ev.registrationDeadline))
     setDifficulty(ev.difficulty)
     setBannerUrl(ev.bannerUrl || '')
     setIsPublished(ev.isPublished !== false)
