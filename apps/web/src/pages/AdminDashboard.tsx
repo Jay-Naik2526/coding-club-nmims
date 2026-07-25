@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/api'
+import { api, API_URL } from '@/lib/api'
 import { useApp } from '@/store/useApp'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QrScanner } from '@/components/QrScanner'
@@ -823,7 +823,7 @@ function FormBuilderView({ forms, isLoading, events, queryClient }: { forms: any
               <p className="text-xs opacity-60 mt-0.5">Total submissions: {activeFormResponses.responses.length}</p>
             </div>
             <a
-              href={`${import.meta.env.VITE_API_URL || 'http://localhost:7860'}/admin/forms/${activeFormResponses.form._id}/export`}
+              href={`${API_URL}/admin/forms/${activeFormResponses.form._id}/export`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-1.5 text-[9px] uppercase tracking-[0.1em] font-bold text-white bg-[var(--news-ink)] hover:bg-black"

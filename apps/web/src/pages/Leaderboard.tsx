@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/api'
+import { api, SOCKET_URL } from '@/lib/api'
 import { io, Socket } from 'socket.io-client'
 
 interface GlobalUser {
@@ -73,8 +73,7 @@ export function LeaderboardPage() {
 
   // Socket.IO integration
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:7860'
-    const socket: Socket = io(apiUrl, {
+    const socket: Socket = io(SOCKET_URL, {
       transports: ['polling', 'websocket'],
       withCredentials: true,
     })

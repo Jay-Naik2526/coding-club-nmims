@@ -1,6 +1,21 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:7860';
+// The session cookie is httpOnly, so it only reaches the API if the browser
+// treats it as first-party. Safari (every browser on iOS) blocks third-party
+// cookies outright, so calling the hf.space API directly from the vercel.app
+// frontend meant iPhone users were never logged in. In production we therefore
+// go through the same-origin '/api' path, which vercel.json proxies to the API
+// — same origin, first-party cookie, works everywhere.
+export const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:7860' : '/api');
+
+// Socket.IO needs a real origin and can't ride the Vercel rewrite (WebSocket
+// upgrades aren't proxied). The live leaderboard feed is public, so talking to
+// the API host directly is fine here — no session cookie is involved.
+export const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ||
+  (import.meta.env.DEV ? 'http://localhost:7860' : 'https://jaynaik2526-coding-club.hf.space');
 
 // NOTE: we send 'text/plain' (a CORS "simple" content-type) instead of
 // 'application/json'. A JSON content-type makes the request "non-simple", which

@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://jaynaik2526-coding-club.hf.space/:path*"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
