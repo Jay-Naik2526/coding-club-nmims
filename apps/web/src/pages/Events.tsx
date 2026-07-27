@@ -24,7 +24,7 @@ export function EventsPage() {
 
   // All events are always shown regardless of the selected department —
   // the dept selection only themes the page (accent color, hero copy).
-  const activeEvents = (events || []).filter((e: any) => e.status !== 'closed')
+  const activeEvents = events || []
 
   // Archive section is driven by static data — always shows all, unaffected by dept filter
   const deptArchive = ARCHIVE
