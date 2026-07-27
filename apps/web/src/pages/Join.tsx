@@ -5,7 +5,11 @@ import { SOCIAL } from '@/lib/content'
 
 const IFRAME_NAME = 'cc-gform-sink'
 
-const TICKER_UNIT = '★ ORGANISING COMMITTEE 2026–27 · APPLICATIONS OPEN · FIRST YEARS ESPECIALLY WELCOME · NO EXPERIENCE NEEDED · '
+const IS_RECRUITMENT_OPEN = false
+
+const TICKER_UNIT = IS_RECRUITMENT_OPEN
+  ? '★ ORGANISING COMMITTEE 2026–27 · APPLICATIONS OPEN · FIRST YEARS ESPECIALLY WELCOME · NO EXPERIENCE NEEDED · '
+  : '★ ORGANISING COMMITTEE 2026–27 · APPLICATIONS CLOSED · THANK YOU FOR APPLYING · '
 
 const PERKS = [
   {
@@ -141,14 +145,20 @@ export function JoinPage() {
           <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
             § Recruitment 2026 · Organising Committee
           </div>
-          <div className="inline-flex items-center gap-1.5 border px-2 py-0.5 text-[9px] uppercase tracking-[0.15em]" style={{ borderColor: 'rgba(200,0,42,.35)', color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
-            <span className="oc-pulse inline-block h-1.5 w-1.5 rounded-full" style={{ background: 'var(--news-red)' }} />
-            Now Open
-          </div>
+          {IS_RECRUITMENT_OPEN ? (
+            <div className="inline-flex items-center gap-1.5 border px-2 py-0.5 text-[9px] uppercase tracking-[0.15em]" style={{ borderColor: 'rgba(200,0,42,.35)', color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+              <span className="oc-pulse inline-block h-1.5 w-1.5 rounded-full" style={{ background: 'var(--news-red)' }} />
+              Now Open
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 border px-2 py-0.5 text-[9px] uppercase tracking-[0.15em] border-gray-400 text-gray-500" style={{ fontFamily: 'var(--font-os)' }}>
+              Closed
+            </div>
+          )}
         </div>
 
         <div className="oc-stamp absolute right-0 top-0 hidden px-4 py-2 text-center text-[11px] font-bold uppercase tracking-[0.15em] sm:block">
-          Apply Now
+          {IS_RECRUITMENT_OPEN ? 'Apply Now' : 'Closed'}
         </div>
 
         <h1 className="font-[family-name:var(--font-serif)] font-black leading-[0.9]" style={{ fontSize: 'clamp(2.6rem,7vw,4.5rem)' }}>
@@ -158,7 +168,9 @@ export function JoinPage() {
         </h1>
 
         <p className="mt-5 text-base leading-relaxed font-semibold" style={{ color: 'rgba(26,22,18,.75)', fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}>
-          Applications for the 2026–27 Organising Committee are now open. First-year students are especially encouraged to apply — no prior experience is required.
+          {IS_RECRUITMENT_OPEN 
+            ? 'Applications for the 2026–27 Organising Committee are now open. First-year students are especially encouraged to apply — no prior experience is required.'
+            : 'Applications for the 2026–27 Organising Committee are now closed. Thank you to everyone who applied!'}
         </p>
         <p className="mt-3 text-sm leading-relaxed" style={{ color: 'rgba(26,22,18,.6)' }}>
           Organising Committee members work directly with the core team — managing events, developing the club platform, running CTFs, and handling the club's communications — with structured training provided throughout the year.
@@ -212,64 +224,84 @@ export function JoinPage() {
       </section>
 
       {/* THE FORM */}
-      <section className="relative border-[3px] border-double p-5 sm:p-8" style={{ borderColor: 'var(--news-ink)', background: '#fff', boxShadow: '5px 5px 0 rgba(26,22,18,.12)' }}>
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-white" style={{ background: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
-          ★ Help Wanted — Apply Within ★
-        </div>
-
-        <p className="mt-2 text-center text-base" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'rgba(26,22,18,.75)' }}>
-          Takes about three minutes. All years welcome; first-years especially encouraged.
-        </p>
-
-        {/* hidden sink — Google's confirmation page loads here */}
-        <iframe name={IFRAME_NAME} title="form-sink" onLoad={handleIframeLoad} className="hidden" aria-hidden />
-
-        <form
-          action={GOOGLE_FORM_ACTION}
-          method="POST"
-          target={IFRAME_NAME}
-          onSubmit={() => {
-            willSubmit.current = true
-            setSubmitting(true)
-          }}
-          className="mt-6 space-y-8"
-        >
-          {sections.map((section) => (
-            <div key={section}>
-              <div className="mb-4 flex items-center gap-3">
-                <span className="whitespace-nowrap text-[13px] font-bold uppercase tracking-[0.2em]" style={{ fontFamily: 'var(--font-os)', color: 'var(--news-ink)' }}>
-                  <span style={{ color: 'var(--news-red)' }}>{section.split(' · ')[0]}</span>
-                  {` · ${section.split(' · ').slice(1).join(' · ')}`}
-                </span>
-                <span className="h-px flex-1" style={{ background: 'rgba(200,0,42,.35)' }} />
-              </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {RECRUIT_FIELDS.filter((f) => (f.section ?? '') === section).map((f) => (
-                  <div key={f.entry} className={f.type === 'paragraph' || f.type === 'radio' ? 'sm:col-span-2' : ''}>
-                    <FieldLabel f={f} />
-                    <RecruitFieldInput f={f} />
-                  </div>
-                ))}
-              </div>
+      <section className="relative border-[3px] border-double p-5 sm:p-8 text-center" style={{ borderColor: 'var(--news-ink)', background: '#fff', boxShadow: '5px 5px 0 rgba(26,22,18,.12)' }}>
+        {!IS_RECRUITMENT_OPEN ? (
+          <div className="py-6">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-white" style={{ background: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+              ★ Recruitment Closed ★
             </div>
-          ))}
+            <h3 className="font-[family-name:var(--font-serif)] text-2xl font-black mb-3">
+              Applications are now closed
+            </h3>
+            <p className="mx-auto max-w-md text-sm leading-relaxed" style={{ color: 'rgba(26,22,18,.75)' }}>
+              Thank you for your interest! The recruitment period for the 2026–27 Organising Committee has ended. 
+              We are currently processing submissions and will contact shortlisted candidates directly on WhatsApp or email.
+            </p>
+            <Link to="/events" className="cc-hover mt-6 inline-block px-6 py-2.5 text-[10px] uppercase tracking-[0.14em] text-white" style={{ background: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}>
+              View Club Events →
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-white" style={{ background: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+              ★ Help Wanted — Apply Within ★
+            </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="oc-cta w-full px-10 py-4 text-[12px] uppercase tracking-[0.2em] text-white transition hover:brightness-90 disabled:opacity-60 sm:w-auto"
-            style={{ background: 'var(--news-red)', fontFamily: 'var(--font-os)' }}
-          >
-            {submitting ? 'Filing your application…' : 'Submit Application →'}
-          </button>
-        </form>
+            <p className="mt-2 text-center text-base" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'rgba(26,22,18,.75)' }}>
+              Takes about three minutes. All years welcome; first-years especially encouraged.
+            </p>
 
-        <div className="mt-5 text-center text-[11px]" style={{ fontFamily: 'var(--font-os)', color: 'rgba(26,22,18,.75)' }}>
-          Prefer plain Google Forms?{' '}
-          <a href={GOOGLE_FORM_VIEW} target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--news-red)]">
-            Open the form directly →
-          </a>
-        </div>
+            {/* hidden sink — Google's confirmation page loads here */}
+            <iframe name={IFRAME_NAME} title="form-sink" onLoad={handleIframeLoad} className="hidden" aria-hidden />
+
+            <form
+              action={GOOGLE_FORM_ACTION}
+              method="POST"
+              target={IFRAME_NAME}
+              onSubmit={() => {
+                willSubmit.current = true
+                setSubmitting(true)
+              }}
+              className="mt-6 space-y-8"
+            >
+              {sections.map((section) => (
+                <div key={section}>
+                  <div className="mb-4 flex items-center gap-3">
+                    <span className="whitespace-nowrap text-[13px] font-bold uppercase tracking-[0.2em]" style={{ fontFamily: 'var(--font-os)', color: 'var(--news-ink)' }}>
+                      <span style={{ color: 'var(--news-red)' }}>{section.split(' · ')[0]}</span>
+                      {` · ${section.split(' · ').slice(1).join(' · ')}`}
+                    </span>
+                    <span className="h-px flex-1" style={{ background: 'rgba(200,0,42,.35)' }} />
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {RECRUIT_FIELDS.filter((f) => (f.section ?? '') === section).map((f) => (
+                      <div key={f.entry} className={f.type === 'paragraph' || f.type === 'radio' ? 'sm:col-span-2' : ''}>
+                        <FieldLabel f={f} />
+                        <RecruitFieldInput f={f} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="oc-cta w-full px-10 py-4 text-[12px] uppercase tracking-[0.2em] text-white transition hover:brightness-90 disabled:opacity-60 sm:w-auto"
+                style={{ background: 'var(--news-red)', fontFamily: 'var(--font-os)' }}
+              >
+                {submitting ? 'Filing your application…' : 'Submit Application →'}
+              </button>
+            </form>
+
+            <div className="mt-5 text-center text-[11px]" style={{ fontFamily: 'var(--font-os)', color: 'rgba(26,22,18,.75)' }}>
+              Prefer plain Google Forms?{' '}
+              <a href={GOOGLE_FORM_VIEW} target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--news-red)]">
+                Open the form directly →
+              </a>
+            </div>
+          </>
+        )}
       </section>
 
       {/* FOOTER CONTACT BLOCK */}
