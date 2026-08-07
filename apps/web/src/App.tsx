@@ -17,6 +17,7 @@ const EventsPage = lazy(() => import('@/pages/Events').then((m) => ({ default: m
 const EventDetailPage = lazy(() => import('@/pages/EventDetail').then((m) => ({ default: m.EventDetailPage })))
 const TeamPage = lazy(() => import('@/pages/Team').then((m) => ({ default: m.TeamPage })))
 const JoinPage = lazy(() => import('@/pages/Join').then((m) => ({ default: m.JoinPage })))
+const PortfoliosPage = lazy(() => import('@/pages/Portfolios').then((m) => ({ default: m.PortfoliosPage })))
 const LeaderboardPage = lazy(() => import('@/pages/Leaderboard').then((m) => ({ default: m.LeaderboardPage })))
 const IdePage = lazy(() => import('@/pages/Ide').then((m) => ({ default: m.IdePage })))
 const ProfilePage = lazy(() => import('@/pages/Profile').then((m) => ({ default: m.ProfilePage })))
@@ -57,6 +58,7 @@ export function App() {
               <Route path="/events/:slug" element={<EventDetailPage />} />
               <Route path="/team" element={<TeamPage />} />
               <Route path="/join" element={<JoinPage />} />
+              <Route path="/portfolios" element={<PortfoliosPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/ide" element={<IdePage />} />
               <Route path="/profile" element={<ProfilePage />} />

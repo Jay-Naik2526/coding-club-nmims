@@ -9,6 +9,7 @@ const NAV = [
   ['Rankings', '/leaderboard'],
   ['Team', '/team'],
   ['Join Us', '/join'],
+  ['Top 10', '/portfolios'],
 ] as const
 
 export function NewsLayout() {
