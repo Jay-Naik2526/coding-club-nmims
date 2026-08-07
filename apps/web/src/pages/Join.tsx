@@ -9,13 +9,13 @@ const IS_RECRUITMENT_OPEN = false
 
 const TICKER_UNIT = IS_RECRUITMENT_OPEN
   ? '★ ORGANISING COMMITTEE 2026–27 · APPLICATIONS OPEN · FIRST YEARS ESPECIALLY WELCOME · NO EXPERIENCE NEEDED · '
-  : '★ ORGANISING COMMITTEE 2026–27 · APPLICATIONS CLOSED · THANK YOU FOR APPLYING · '
+  : '★ ORGANISING COMMITTEE 2026–27 · SELECTED & ONBOARDED · THANK YOU TO EVERY APPLICANT · '
 
 const PERKS = [
   {
     n: '01',
     title: 'Zero experience needed',
-    desc: 'We recruit for curiosity and commitment. Every skill you’ll need is taught inside the club.',
+    desc: 'Selection is based on curiosity and commitment. Every skill you’ll need is taught inside the club.',
   },
   {
     n: '02',
@@ -151,14 +151,14 @@ export function JoinPage() {
               Now Open
             </div>
           ) : (
-            <div className="inline-flex items-center gap-1.5 border px-2 py-0.5 text-[9px] uppercase tracking-[0.15em] border-gray-400 text-gray-500" style={{ fontFamily: 'var(--font-os)' }}>
-              Closed
+            <div className="inline-flex items-center gap-1.5 border px-2 py-0.5 text-[9px] uppercase tracking-[0.15em]" style={{ borderColor: 'rgba(16,185,129,.35)', color: '#0a7a3d', fontFamily: 'var(--font-os)' }}>
+              ✓ Committee Formed
             </div>
           )}
         </div>
 
         <div className="oc-stamp absolute right-0 top-0 hidden px-4 py-2 text-center text-[11px] font-bold uppercase tracking-[0.15em] sm:block">
-          {IS_RECRUITMENT_OPEN ? 'Apply Now' : 'Closed'}
+          {IS_RECRUITMENT_OPEN ? 'Apply Now' : 'Formed'}
         </div>
 
         <h1 className="font-[family-name:var(--font-serif)] font-black leading-[0.9]" style={{ fontSize: 'clamp(2.6rem,7vw,4.5rem)' }}>
@@ -170,7 +170,7 @@ export function JoinPage() {
         <p className="mt-5 text-base leading-relaxed font-semibold" style={{ color: 'rgba(26,22,18,.75)', fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}>
           {IS_RECRUITMENT_OPEN 
             ? 'Applications for the 2026–27 Organising Committee are now open. First-year students are especially encouraged to apply — no prior experience is required.'
-            : 'Applications for the 2026–27 Organising Committee are now closed. Thank you to everyone who applied!'}
+            : 'The 2026–27 Organising Committee has been selected and onboarded. Thank you to every student who applied — the response this year was outstanding.'}
         </p>
         <p className="mt-3 text-sm leading-relaxed" style={{ color: 'rgba(26,22,18,.6)' }}>
           Organising Committee members work directly with the core team — managing events, developing the club platform, running CTFs, and handling the club's communications — with structured training provided throughout the year.
@@ -180,7 +180,7 @@ export function JoinPage() {
       {/* PERKS STRIP */}
       <section className="mb-12">
         <h2 className="text-[11px] uppercase tracking-[0.2em] font-bold" style={{ color: 'rgba(26,22,18,.55)', fontFamily: 'var(--font-os)' }}>
-          Why first-years love it here
+          What being on the Organising Committee means
         </h2>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {PERKS.map((p) => (
@@ -196,7 +196,7 @@ export function JoinPage() {
       {/* DIVISIONS GRID */}
       <section className="mb-14">
         <h2 className="text-[11px] uppercase tracking-[0.2em] font-bold" style={{ color: 'rgba(26,22,18,.55)', fontFamily: 'var(--font-os)' }}>
-          Pick your desk — six divisions, all recruiting
+          Six divisions — all staffed for 2026–27
         </h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {DIVISIONS.map((d) => (
@@ -208,9 +208,8 @@ export function JoinPage() {
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
                   <h3 className="font-[family-name:var(--font-serif)] font-bold text-base" style={{ color: 'var(--news-ink)' }}>{d.name}</h3>
-                  <span className="inline-flex items-center gap-1 text-[8px] font-semibold px-1.5 py-0.5 uppercase tracking-wider" style={{ background: 'rgba(200,0,42,.08)', color: 'var(--news-red)', border: '1px solid rgba(200,0,42,.25)', fontFamily: 'var(--font-os)' }}>
-                    <span className="oc-pulse inline-block h-1.5 w-1.5 rounded-full" style={{ background: 'var(--news-red)' }} />
-                    Hiring
+                  <span className="inline-flex items-center gap-1 text-[8px] font-semibold px-1.5 py-0.5 uppercase tracking-wider" style={{ background: 'rgba(16,185,129,.1)', color: '#0a7a3d', border: '1px solid rgba(16,185,129,.25)', fontFamily: 'var(--font-os)' }}>
+                    ✓ Staffed
                   </span>
                 </div>
                 <p className="text-xs leading-relaxed" style={{ color: 'rgba(26,22,18,.55)' }}>{d.desc}</p>
@@ -228,18 +227,24 @@ export function JoinPage() {
         {!IS_RECRUITMENT_OPEN ? (
           <div className="py-6">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-white" style={{ background: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
-              ★ Recruitment Closed ★
+              ★ Recruitment Complete ★
             </div>
             <h3 className="font-[family-name:var(--font-serif)] text-2xl font-black mb-3">
-              Applications are now closed
+              The Organising Committee is formed
             </h3>
             <p className="mx-auto max-w-md text-sm leading-relaxed" style={{ color: 'rgba(26,22,18,.75)' }}>
-              Thank you for your interest! The recruitment period for the 2026–27 Organising Committee has ended. 
-              We are currently processing submissions and will contact shortlisted candidates directly on WhatsApp or email.
+              Selection for the 2026–27 Organising Committee is complete and all six divisions are now staffed.
+              Thank you to every student who applied — selected members have been contacted and onboarded.
+              Watch this page for next year's recruitment cycle.
             </p>
-            <Link to="/events" className="cc-hover mt-6 inline-block px-6 py-2.5 text-[10px] uppercase tracking-[0.14em] text-white" style={{ background: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}>
-              View Club Events →
-            </Link>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Link to="/team" className="cc-hover inline-block px-6 py-2.5 text-[10px] uppercase tracking-[0.14em] text-white" style={{ background: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}>
+                Meet the Team →
+              </Link>
+              <Link to="/events" className="cc-hover inline-block border px-6 py-2.5 text-[10px] uppercase tracking-[0.14em]" style={{ borderColor: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}>
+                View Club Events →
+              </Link>
+            </div>
           </div>
         ) : (
           <>

@@ -94,12 +94,12 @@ export function Landing() {
           >
             <div className="mb-5 flex flex-col items-center gap-3 lg:items-end">
               <div
-                onClick={() => wipeTo('/join')}
+                onClick={() => wipeTo('/portfolios')}
                 className="inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.15em] cursor-pointer hover:bg-white/5 transition-colors"
                 style={{ borderColor: 'rgba(243,239,229,.4)', color: '#fff', fontFamily: 'var(--font-os)' }}
               >
                 <span className="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse" style={{ backgroundColor: '#ff3b30' }} />
-                <span>OC Recruitment 2026–27 — Applications Open →</span>
+                <span>Freshers' Top 10 Portfolios — Results Out →</span>
               </div>
               <div className="text-[10px] uppercase tracking-[0.35em]" style={{ color: 'rgba(243,239,229,.5)' }}>
                 NMIMS MPSTME · Code. Collaborate. Create.

@@ -162,8 +162,8 @@ export function PortfoliosPage() {
       {/* FOOTER NOTE */}
       <div className="mt-14 border-t pt-5 text-sm leading-relaxed" style={{ borderColor: 'rgba(26,22,18,.2)', color: 'rgba(26,22,18,.7)', fontFamily: 'var(--font-os)' }}>
         Congratulations to every first-year who submitted. The Coding Club runs initiatives like this all year —{' '}
-        <Link to="/join" className="underline hover:text-[var(--news-red)]" style={{ color: 'var(--news-red)' }}>
-          applications for the Organising Committee are open
+        <Link to="/events" className="underline hover:text-[var(--news-red)]" style={{ color: 'var(--news-red)' }}>
+          keep an eye on our upcoming competitions
         </Link>
         .
       </div>
