@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /profile
 
-Sitemap: https://codingclubnmims.in/sitemap.xml
+Sitemap: https://www.codingclubnmims.in/sitemap.xml
