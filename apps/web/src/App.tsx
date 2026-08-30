@@ -23,6 +23,7 @@ const IdePage = lazy(() => import('@/pages/Ide').then((m) => ({ default: m.IdePa
 const ProfilePage = lazy(() => import('@/pages/Profile').then((m) => ({ default: m.ProfilePage })))
 const TicketPage = lazy(() => import('@/pages/Ticket').then((m) => ({ default: m.TicketPage })))
 const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboard').then((m) => ({ default: m.AdminDashboardPage })))
+const OcRosterPage = lazy(() => import('@/pages/OcRoster').then((m) => ({ default: m.OcRosterPage })))
 const NotFound = lazy(() => import('@/pages/NotFound').then((m) => ({ default: m.NotFound })))
 
 // Guard: only ADMIN role can access /admin. Defined outside App() so it's a
@@ -59,6 +60,7 @@ export function App() {
               <Route path="/team" element={<TeamPage />} />
               <Route path="/join" element={<JoinPage />} />
               <Route path="/portfolios" element={<PortfoliosPage />} />
+              <Route path="/oc" element={<OcRosterPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/ide" element={<IdePage />} />
               <Route path="/profile" element={<ProfilePage />} />

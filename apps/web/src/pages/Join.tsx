@@ -311,7 +311,7 @@ export function JoinPage() {
 
       {/* FOOTER CONTACT BLOCK */}
       <div className="mt-12 border-t pt-4 text-sm leading-relaxed" style={{ borderColor: 'rgba(26,22,18,.2)', color: 'rgba(26,22,18,.7)', fontFamily: 'var(--font-os)' }}>
-        Questions? Contact — Club Incharge: <strong>Jay Naik</strong> (9374488770) · <strong>Daksh Lalawat</strong> (9521175403)
+        Questions? Contact — Club Incharge: <strong>Jay Naik</strong> (9374488770)
         <br />
         <a href={`mailto:${SOCIAL.email}`} className="hover:text-[var(--news-red)]">{SOCIAL.email}</a>
       </div>

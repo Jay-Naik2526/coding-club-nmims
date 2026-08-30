@@ -8,7 +8,6 @@ import api from '@/lib/api'
 const CoHeadCanvas = lazy(() => import('@/three/TeamPortrait').then((m) => ({ default: m.CoHeadCanvas })))
 
 const CO_HEADS = [
-  { name: 'Daksh Lalawat', role: 'Co-Head', photo: '/team/Daksh.jpeg' },
   { name: 'Jiya Patel', role: 'Co-Head', photo: '/team/Jiya.jpeg' },
   { name: 'Palak Agarwal', role: 'Co-Head', photo: '/team/Palak.jpeg' },
 ]

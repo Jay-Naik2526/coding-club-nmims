@@ -304,3 +304,28 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ═══ OC ROSTER — confetti burst when a member finds their own name ═══ */
+@keyframes oc-confetti-fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(260px) rotate(540deg);
+    opacity: 0;
+  }
+}
+.oc-confetti {
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  animation-name: oc-confetti-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .oc-confetti {
+    display: none;
+  }
+}
