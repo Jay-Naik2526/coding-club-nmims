@@ -136,8 +136,27 @@ export const OC_DIVISIONS: OcDivision[] = [
     short: 'Events',
     color: '#c8002a',
     blurb: 'Plans, schedules, and actually runs every event the club puts on.',
-    pending: true,
-    members: [],
+    members: [
+      { name: 'Nachiket Bhadane', year: '2nd', branch: 'B.Tech IT' },
+      { name: 'Kostubh Toshniwal', year: '1st', branch: 'MBA Tech CE' },
+      { name: 'Aman Singh', year: '2nd', branch: 'B.Tech CE' },
+      { name: 'Aaradhya Amit Chandak', year: '1st', branch: 'MBA Tech CE' },
+      { name: 'Sarthak Aher', year: '2nd', branch: 'B.Tech CE' },
+      { name: 'Yana Agrawal', year: '1st', branch: 'MBA Tech CE' },
+      { name: 'Chinmayee Lodaya', year: '2nd', branch: 'B.Tech IT' },
+      { name: 'Atharv Thakre', year: '1st', branch: 'MBA Tech CE' },
+      { name: 'Yagnesh Vyas', year: '1st', branch: 'B.Tech CS' },
+      { name: 'Devika Sharma', year: '2nd', branch: 'B.Tech CS' },
+      { name: 'Khushi Sharma', year: '1st', branch: 'B.Tech CS' },
+      { name: 'Akarti Tyagi', year: '2nd', branch: 'B.Tech AIML' },
+      { name: 'Nishtha Daporkar', year: '1st', branch: 'B.Tech CSDS' },
+      { name: 'Taran Arya', year: '2nd', branch: 'MBA Tech CE' },
+      { name: 'Ishan Dangi', year: '2nd', branch: 'B.Tech CS' },
+      { name: 'Jatin Panwar', year: '1st', branch: 'MBA Tech CE' },
+      { name: 'Rachel K John', year: '2nd', branch: 'MBA Tech CE' },
+      { name: 'Nishita Thakur', year: '2nd', branch: 'B.Tech AIML' },
+      { name: 'Jeet Patel', year: '1st', branch: 'MBA Tech CE' },
+    ],
   },
 ]
 
@@ -148,7 +167,7 @@ const ALIASES: Record<string, string[]> = {
   marketing: ['Deal Closer', 'Hype Engineer', 'Sponsor Whisperer', 'Reach Architect', 'Crowd Summoner', 'Pitch Perfect', 'Footfall Wizard', 'Cold-Mail Sniper'],
   creative: ['Pixel Painter', 'Reel Wizard', 'Palette Boss', 'Frame Fanatic', 'Poster Prodigy', 'Vibe Curator', 'Kerning Nerd', 'Story Stitcher'],
   docs: ['Word Smith', 'Deadline Dodger', 'Minute Master', 'Byline Boss', 'Draft Dynamo', 'Archive Keeper', 'Footnote Fiend', 'Press Pass'],
-  events: ['Chaos Coordinator', 'Logistics Legend', 'Stage Commander', 'Clipboard Warrior'],
+  events: ['Chaos Coordinator', 'Logistics Legend', 'Stage Commander', 'Clipboard Warrior', 'Crowd Wrangler', 'Schedule Slayer', 'Backstage Boss', 'Green-Room Guru'],
 }
 
 export function aliasFor(divisionId: string, name: string): string {
@@ -166,3 +185,17 @@ export function initialsOf(name: string): string {
 }
 
 export const OC_TOTAL = OC_DIVISIONS.reduce((n, d) => n + d.members.length, 0)
+
+/** URL-safe id for a member — used by the shareable pass link (?me=…). */
+export function slugFor(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+export function findBySlug(slug: string): { member: OcMember; division: OcDivision } | null {
+  for (const d of OC_DIVISIONS) {
+    for (const m of d.members) {
+      if (slugFor(m.name) === slug) return { member: m, division: d }
+    }
+  }
+  return null
+}

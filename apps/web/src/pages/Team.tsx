@@ -1,7 +1,9 @@
 import { Suspense, lazy, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, useScroll } from 'framer-motion'
 import { FACULTY, FACULTY_NOTE, CAMPUSES, CONTACT, SOCIAL } from '@/lib/content'
 import { DEPTS } from '@/lib/depts'
+import { OC_DIVISIONS, OC_TOTAL } from '@/lib/ocRoster'
 import axios from 'axios'
 import api from '@/lib/api'
 
@@ -74,6 +76,75 @@ const DEPARTMENTS = [
     ],
   },
 ]
+
+
+// A loud, dark break between the core heads and the faculty — the OC is the
+// biggest group in the club, so it gets a banner of its own with the members'
+// names actually streaming past.
+function OcBanner() {
+  const names = OC_DIVISIONS.flatMap((d) => d.members.map((m) => m.name))
+  const firstYears = OC_DIVISIONS.reduce((n, d) => n + d.members.filter((m) => m.year === '1st').length, 0)
+  const strip = names.slice(0, 28)
+
+  return (
+    <div className="mt-20 overflow-hidden border-2" style={{ borderColor: 'var(--news-ink)', background: 'var(--news-ink)' }}>
+      <div className="grid gap-6 p-7 sm:p-9 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+        <div className="text-center lg:text-left">
+          <div className="font-[family-name:var(--font-serif)] font-black leading-none" style={{ fontSize: 'clamp(3.4rem,9vw,5.5rem)', color: 'var(--news-red)' }}>
+            {OC_TOTAL}
+          </div>
+          <div className="mt-1 text-[9px] uppercase tracking-[0.22em]" style={{ color: 'rgba(243,239,229,.5)', fontFamily: 'var(--font-os)' }}>
+            OC Members
+          </div>
+        </div>
+
+        <div className="text-center lg:text-left">
+          <div className="mb-2 text-[9px] uppercase tracking-[0.25em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+            § Beneath the masthead
+          </div>
+          <h3 className="font-[family-name:var(--font-serif)] font-black leading-[0.95]" style={{ fontSize: 'clamp(1.7rem,4vw,2.6rem)', color: 'var(--news-bg)' }}>
+            The Organising Committee 2026–27
+          </h3>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed lg:mx-0" style={{ color: 'rgba(243,239,229,.6)' }}>
+            Six divisions and {firstYears} first-years — the people who actually run the events, ship the platform, and keep the club moving.
+          </p>
+        </div>
+
+        <div className="text-center">
+          <Link
+            to="/oc"
+            className="cc-hover inline-block px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.16em]"
+            style={{ background: 'var(--news-red)', color: '#fff', fontFamily: 'var(--font-os)' }}
+          >
+            Open the roll call →
+          </Link>
+          <div className="mt-2 text-[9px] uppercase tracking-[0.12em]" style={{ color: 'rgba(243,239,229,.4)', fontFamily: 'var(--font-os)' }}>
+            Find your name · get your pass
+          </div>
+        </div>
+      </div>
+
+      {/* names streaming past, like a credits roll */}
+      <div className="overflow-hidden border-t py-2" style={{ borderColor: 'rgba(243,239,229,.15)' }}>
+        <div className="flex whitespace-nowrap" style={{ animation: 'marquee 40s linear infinite' }}>
+          {[0, 1].map((half) => (
+            <div key={half} className="flex shrink-0">
+              {strip.map((n) => (
+                <span
+                  key={`${half}-${n}`}
+                  className="px-4 text-[10px] uppercase tracking-[0.14em]"
+                  style={{ color: 'rgba(243,239,229,.45)', fontFamily: 'var(--font-os)' }}
+                >
+                  {n} <span style={{ color: 'var(--news-red)' }}>·</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const QUICK_NAV = [
   ['president', 'The President'],
@@ -237,6 +308,8 @@ export function TeamPage() {
         >
           <DepartmentTree departments={DEPARTMENTS} />
         </StationSection>
+
+        <OcBanner />
 
         <StationSection id="faculty" n="04" label="Academic Guidance" title="Faculty Advisors" marginTop="mt-20">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

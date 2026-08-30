@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { OC_DIVISIONS, OC_TOTAL, aliasFor, initialsOf, type OcDivision, type OcMember } from '@/lib/ocRoster'
+import { Link, useSearchParams } from 'react-router-dom'
+import { OC_DIVISIONS, OC_TOTAL, aliasFor, findBySlug, initialsOf, slugFor, type OcDivision, type OcMember } from '@/lib/ocRoster'
 
 const CONFETTI_COLORS = ['#c8002a', '#0055ff', '#e0006e', '#b86800', '#007a3d', '#6D3B8E']
 
@@ -37,10 +37,13 @@ function Confetti({ seed }: { seed: number }) {
   )
 }
 
-function MemberCard({ member, division, index, highlighted }: { member: OcMember; division: OcDivision; index: number; highlighted: boolean }) {
+function MemberCard({ member, division, index, highlighted, onOpen }: { member: OcMember; division: OcDivision; index: number; highlighted: boolean; onOpen: () => void }) {
   return (
-    <div
-      className="relative overflow-hidden border bg-white p-3 transition-transform duration-150 hover:-translate-y-1 hover:rotate-[-1deg]"
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={`Open ${member.name}'s OC pass`}
+      className="relative block w-full overflow-hidden border bg-white p-3 text-left transition-transform duration-150 hover:-translate-y-1 hover:rotate-[-1deg]"
       style={{
         borderColor: highlighted ? 'var(--news-red)' : 'rgba(26,22,18,.16)',
         boxShadow: highlighted ? '0 0 0 3px rgba(200,0,42,.18)' : undefined,
@@ -71,6 +74,141 @@ function MemberCard({ member, division, index, highlighted }: { member: OcMember
       <div className="mt-1.5 text-[9px] uppercase tracking-[0.1em]" style={{ color: division.color, fontFamily: 'var(--font-os)' }}>
         ★ {aliasFor(division.id, member.name)}
       </div>
+    </button>
+  )
+}
+
+
+/** Shareable "press pass" — the payoff for finding yourself on the wall. */
+function OcPass({ slug, onClose }: { slug: string; onClose: () => void }) {
+  const found = findBySlug(slug)
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [onClose])
+
+  if (!found) return null
+  const { member, division } = found
+  const alias = aliasFor(division.id, member.name)
+
+  const copyLink = async () => {
+    const url = `${window.location.origin}/oc?me=${slug}`
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      const el = document.createElement('textarea')
+      el.value = url
+      document.body.appendChild(el)
+      el.select()
+      try {
+        document.execCommand('copy')
+      } catch {
+        /* clipboard unavailable — the URL is already in the address bar */
+      }
+      document.body.removeChild(el)
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1800)
+  }
+
+  // Deterministic "barcode" so a pass always looks identical.
+  let h = 0
+  for (let i = 0; i < member.name.length; i++) h = (h * 31 + member.name.charCodeAt(i)) >>> 0
+  const bars = Array.from({ length: 26 }).map((_, i) => 2 + ((h >> (i % 26)) % 4))
+
+  return (
+    <div
+      className="fixed inset-0 z-[900] flex items-center justify-center p-4"
+      style={{ background: 'rgba(26,22,18,.85)', backdropFilter: 'blur(3px)' }}
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${member.name} — OC press pass`}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-[340px] overflow-hidden border-2 bg-white"
+        style={{ borderColor: 'var(--news-ink)', boxShadow: '8px 8px 0 rgba(0,0,0,.35)' }}
+      >
+        <div className="h-2.5" style={{ background: division.color }} />
+
+        {/* lanyard slot */}
+        <div className="flex justify-center pt-4">
+          <div className="h-2 w-16 rounded-full" style={{ background: 'rgba(26,22,18,.18)' }} />
+        </div>
+
+        <div className="px-6 pb-3 pt-4 text-center">
+          <div className="text-[8px] uppercase tracking-[0.3em]" style={{ color: 'rgba(26,22,18,.45)', fontFamily: 'var(--font-os)' }}>
+            The Coding Club · NMIMS Shirpur
+          </div>
+          <div className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+            Organising Committee 2026–27
+          </div>
+        </div>
+
+        <div className="border-y border-dashed px-6 py-5 text-center" style={{ borderColor: 'rgba(26,22,18,.25)' }}>
+          <div
+            className="mx-auto mb-3 flex h-16 w-16 items-center justify-center font-[family-name:var(--font-serif)] text-2xl font-black"
+            style={{ background: `${division.color}18`, color: division.color }}
+            aria-hidden
+          >
+            {initialsOf(member.name)}
+          </div>
+          <div className="font-[family-name:var(--font-serif)] text-2xl font-black leading-tight">{member.name}</div>
+          <div className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: division.color, fontFamily: 'var(--font-os)' }}>
+            ★ {alias}
+          </div>
+        </div>
+
+        <dl className="px-6 py-4 text-[10px] uppercase tracking-[0.1em]" style={{ fontFamily: 'var(--font-os)' }}>
+          {[
+            ['Division', division.name],
+            ['Year', `${member.year} year`],
+            ['Branch', member.branch],
+          ].map(([k, v]) => (
+            <div key={k} className="flex justify-between border-b py-1.5 last:border-0" style={{ borderColor: 'rgba(26,22,18,.1)' }}>
+              <dt style={{ color: 'rgba(26,22,18,.45)' }}>{k}</dt>
+              <dd className="font-bold" style={{ color: 'var(--news-ink)' }}>{v}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="flex items-end justify-center gap-[2px] px-6 pb-2" aria-hidden>
+          {bars.map((w, i) => (
+            <span key={i} style={{ width: w, height: i % 3 === 0 ? 30 : 24, background: 'var(--news-ink)' }} />
+          ))}
+        </div>
+        <div className="pb-4 text-center text-[8px] uppercase tracking-[0.25em]" style={{ color: 'rgba(26,22,18,.4)', fontFamily: 'var(--font-os)' }}>
+          Member · Class of 2026–27
+        </div>
+
+        <div className="flex border-t" style={{ borderColor: 'var(--news-ink)' }}>
+          <button
+            onClick={copyLink}
+            className="flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-90"
+            style={{ background: 'var(--news-ink)', fontFamily: 'var(--font-os)' }}
+          >
+            {copied ? '✓ Link copied' : 'Copy my link'}
+          </button>
+          <button
+            onClick={onClose}
+            className="px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em]"
+            style={{ fontFamily: 'var(--font-os)' }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -81,6 +219,33 @@ export function OcRosterPage() {
   const [confettiSeed, setConfettiSeed] = useState(0)
   const [showConfetti, setShowConfetti] = useState(false)
   const lastCelebrated = useRef<string | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [passSlug, setPassSlug] = useState<string | null>(null)
+  const didInit = useRef(false)
+
+  // A shared ?me=… link opens that member's pass on arrival.
+  useEffect(() => {
+    if (didInit.current) return
+    didInit.current = true
+    const me = searchParams.get('me')
+    if (me && findBySlug(me)) {
+      setPassSlug(me)
+      setConfettiSeed((n) => n + 1)
+      setShowConfetti(true)
+      setTimeout(() => setShowConfetti(false), 1700)
+    }
+  }, [searchParams])
+
+  const openPass = (name: string) => {
+    const slug = slugFor(name)
+    setPassSlug(slug)
+    setSearchParams({ me: slug }, { replace: true })
+  }
+
+  const closePass = () => {
+    setPassSlug(null)
+    setSearchParams({}, { replace: true })
+  }
 
   const firstYears = useMemo(
     () => OC_DIVISIONS.reduce((n, d) => n + d.members.filter((m) => m.year === '1st').length, 0),
@@ -127,6 +292,8 @@ export function OcRosterPage() {
 
   return (
     <section className="mx-auto max-w-[1150px] px-5 py-12 sm:px-10">
+      {passSlug && <OcPass slug={passSlug} onClose={closePass} />}
+
       {/* MASTHEAD */}
       <header className="mb-8 border-b-2 pb-7" style={{ borderColor: 'var(--news-ink)' }}>
         <div className="mb-2 text-[10px] uppercase tracking-[0.25em]" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
@@ -138,7 +305,7 @@ export function OcRosterPage() {
           <span style={{ color: 'var(--news-red)' }}>2026–27.</span>
         </h1>
         <p className="mt-5 text-base font-semibold leading-relaxed" style={{ color: 'rgba(26,22,18,.75)', fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}>
-          Fifty-eight students. Six divisions. One very ambitious year ahead. If your name is on this page — congratulations, you made it.
+          {OC_TOTAL} students. {OC_DIVISIONS.length} divisions. One very ambitious year ahead. If your name is on this page — congratulations, you made it.
         </p>
 
         <div className="mt-6 grid grid-cols-3 gap-3">
@@ -175,7 +342,7 @@ export function OcRosterPage() {
 
         <div className="relative mt-2">
           <label htmlFor="oc-search" className="mb-2 block text-center text-[11px] uppercase tracking-[0.15em] opacity-60" style={{ fontFamily: 'var(--font-os)' }}>
-            Type your name and watch what happens
+            Type your name — then tap your card for a shareable pass
           </label>
           <input
             id="oc-search"
@@ -209,6 +376,13 @@ export function OcRosterPage() {
               <div className="mt-1.5 text-[10px] uppercase tracking-[0.15em]" style={{ color: single.division.color, fontFamily: 'var(--font-os)' }}>
                 Codename — ★ {aliasFor(single.division.id, single.member.name)}
               </div>
+              <button
+                onClick={() => openPass(single.member.name)}
+                className="cc-hover mt-4 inline-block px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white"
+                style={{ background: 'var(--news-red)', fontFamily: 'var(--font-os)' }}
+              >
+                Get my press pass →
+              </button>
             </div>
           )}
         </div>
@@ -304,6 +478,7 @@ export function OcRosterPage() {
                       division={division}
                       index={division.members.indexOf(m)}
                       highlighted={q.length > 0}
+                      onOpen={() => openPass(m.name)}
                     />
                   ))}
                 </div>
@@ -315,7 +490,7 @@ export function OcRosterPage() {
 
       {/* FOOTER */}
       <div className="mt-14 border-t pt-5 text-sm leading-relaxed" style={{ borderColor: 'rgba(26,22,18,.2)', color: 'rgba(26,22,18,.7)', fontFamily: 'var(--font-os)' }}>
-        Congratulations to every member of the 2026–27 Organising Committee — the Event Management desk joins this wall shortly.{' '}
+        Congratulations to every member of the 2026–27 Organising Committee. Tap any card to open your press pass and share it.{' '}
         <Link to="/team" className="underline hover:text-[var(--news-red)]" style={{ color: 'var(--news-red)' }}>
           Meet the core team →
         </Link>{' '}
