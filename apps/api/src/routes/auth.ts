@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import { User } from '../models/index.js';
+import { User, PasswordReset } from '../models/index.js';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimit.js';
 
@@ -167,4 +167,41 @@ router.post('/sync-profile', requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
+// ── Self-Service Password Reset ───────────────────────────────────────────
+// Student proves identity via email + SAP ID and sets a new password in one
+// step — no admin approval or OTP needed.
+router.post('/reset-password', authLimiter, async (req, res) => {
+  const { email, sapId, newPassword } = req.body;
+
+  if (!email || !sapId || !newPassword) {
+    return res.status(400).json({ error: 'Email, SAP ID, and new password are required' });
+  }
+  if (String(newPassword).length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  }
+
+  try {
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const normalizedSapId = String(sapId).trim();
+
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      return res.status(404).json({ error: 'No account found with this email address' });
+    }
+
+    // Verify SAP ID matches (case-insensitive comparison)
+    if (!user.sapId || user.sapId.toLowerCase() !== normalizedSapId.toLowerCase()) {
+      return res.status(400).json({ error: 'SAP ID does not match the account on file' });
+    }
+
+    user.passwordHash = await bcrypt.hash(String(newPassword), 10);
+    await user.save();
+
+    res.json({ message: 'Password has been reset successfully. You can now log in with your new password.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
 export default router;
+

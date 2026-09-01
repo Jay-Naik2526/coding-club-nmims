@@ -1,7 +1,8 @@
 import express from 'express';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { requireAdmin, AuthRequest } from '../middleware/auth.js';
-import { Event, User, Registration, TeamMember, Problem, Submission, Form, FormResponse, Message, Score, UserBadge } from '../models/index.js';
+import { Event, User, Registration, TeamMember, Problem, Submission, Form, FormResponse, Message, Score, UserBadge, PasswordReset } from '../models/index.js';
 
 const router = express.Router();
 
@@ -440,5 +441,69 @@ const deleteUser: express.RequestHandler = async (req: AuthRequest, res) => {
 };
 router.delete('/users/:id', requireAdmin, deleteUser);
 router.post('/users/:id/delete', requireAdmin, deleteUser);
+
+// ── Password Reset Request Management ──────────────────────────────────────
+
+// GET /admin/reset-requests - List all password reset requests
+router.get('/reset-requests', requireAdmin, async (req, res) => {
+  try {
+    const requests = await PasswordReset.find({})
+      .populate('userId', 'name email sapId branch year course')
+      .sort({ createdAt: -1 });
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve reset requests' });
+  }
+});
+
+// POST /admin/reset-requests/:id/approve - Approve a reset request and generate token
+const approveReset: express.RequestHandler = async (req, res) => {
+  try {
+    const resetRequest = await PasswordReset.findById(req.params.id);
+    if (!resetRequest) {
+      return res.status(404).json({ error: 'Reset request not found' });
+    }
+    if (resetRequest.status !== 'pending') {
+      return res.status(400).json({ error: `Cannot approve a request with status "${resetRequest.status}"` });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    resetRequest.resetToken = resetToken;
+    resetRequest.status = 'approved';
+    resetRequest.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    await resetRequest.save();
+
+    res.json({
+      message: 'Reset request approved',
+      resetToken,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to approve reset request' });
+  }
+};
+router.put('/reset-requests/:id/approve', requireAdmin, approveReset);
+router.post('/reset-requests/:id/approve', requireAdmin, approveReset);
+
+// POST /admin/reset-requests/:id/reject - Reject a reset request
+const rejectReset: express.RequestHandler = async (req, res) => {
+  try {
+    const resetRequest = await PasswordReset.findById(req.params.id);
+    if (!resetRequest) {
+      return res.status(404).json({ error: 'Reset request not found' });
+    }
+    if (resetRequest.status !== 'pending') {
+      return res.status(400).json({ error: `Cannot reject a request with status "${resetRequest.status}"` });
+    }
+
+    resetRequest.status = 'rejected';
+    await resetRequest.save();
+
+    res.json({ message: 'Reset request rejected' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reject reset request' });
+  }
+};
+router.put('/reset-requests/:id/reject', requireAdmin, rejectReset);
+router.post('/reset-requests/:id/reject', requireAdmin, rejectReset);
 
 export default router;

@@ -10,3 +10,4 @@ export { Badge, UserBadge } from './Badge.js';
 export { default as Certificate } from './Certificate.js';
 export { default as Message } from './Message.js';
 export { default as Score } from './Score.js';
+export { default as PasswordReset } from './PasswordReset.js';

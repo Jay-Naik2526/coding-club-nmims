@@ -102,6 +102,12 @@ export function LoginPage() {
               </div>
             </Field>
 
+            <div className="text-right -mt-2">
+              <Link to="/forgot-password" className="text-[9px] uppercase tracking-[0.1em] opacity-50 transition-opacity hover:opacity-100" style={{ color: 'var(--news-red)', fontFamily: 'var(--font-os)' }}>
+                Forgot Password?
+              </Link>
+            </div>
+
             {error && (
               <motion.div
                 initial={{ opacity: 0, y: -4 }}

@@ -25,6 +25,7 @@ const TicketPage = lazy(() => import('@/pages/Ticket').then((m) => ({ default: m
 const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboard').then((m) => ({ default: m.AdminDashboardPage })))
 const OcRosterPage = lazy(() => import('@/pages/OcRoster').then((m) => ({ default: m.OcRosterPage })))
 const NotFound = lazy(() => import('@/pages/NotFound').then((m) => ({ default: m.NotFound })))
+const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPassword').then((m) => ({ default: m.ForgotPasswordPage })))
 
 // Guard: only ADMIN role can access /admin. Defined outside App() so it's a
 // stable component reference across renders (not recreated every render).
@@ -53,6 +54,7 @@ export function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             {/* Newspaper world */}
             <Route element={<NewsLayout />}>
               <Route path="/events" element={<EventsPage />} />
