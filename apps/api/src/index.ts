@@ -35,17 +35,32 @@ const app = express();
 app.set('trust proxy', 1);
 
 // ── CORS allowlist ─────────────────────────────────────────────────────────
-// CLIENT_ORIGIN may be a comma-separated list. We normalize (strip trailing
-// slash) and reflect the request's Origin so credentials work cross-site.
-const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
-  .split(',')
-  .map((o) => o.trim().replace(/\/$/, ''))
-  .filter(Boolean);
+// Support local dev, production domain codingclubnmims.in, Vercel apps, and custom env origins
+const defaultOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://codingclubnmims.in',
+  'https://www.codingclubnmims.in',
+];
+
+const envOrigins = process.env.CLIENT_ORIGIN
+  ? process.env.CLIENT_ORIGIN.split(',').map((o) => o.trim().replace(/\/$/, ''))
+  : [];
+
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins])).filter(Boolean);
+
+function isAllowedOrigin(origin?: string): boolean {
+  if (!origin) return true; // allow server-to-server or non-browser requests
+  const cleanOrigin = origin.replace(/\/$/, '');
+  if (allowedOrigins.includes(cleanOrigin)) return true;
+  if (/^https:\/\/(.*\.)?codingclubnmims\.in$/.test(cleanOrigin)) return true;
+  if (/^https:\/\/.*\.vercel\.app$/.test(cleanOrigin)) return true;
+  return false;
+}
 
 const corsOptions: cors.CorsOptions = {
   origin(origin, cb) {
-    // allow same-origin / server-to-server (no Origin header) and any allowlisted origin
-    if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) return cb(null, true);
+    if (isAllowedOrigin(origin)) return cb(null, true);
     return cb(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true,
@@ -58,7 +73,10 @@ const server = http.createServer(app);
 // Socket.IO server with fallback to polling (transports: ['polling', 'websocket'])
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, cb) => {
+      if (isAllowedOrigin(origin)) return cb(null, true);
+      return cb(new Error(`Origin ${origin} not allowed by CORS`));
+    },
     credentials: true,
   },
   transports: ['polling', 'websocket'], // fallback to polling is critical on HF spaces
@@ -70,7 +88,7 @@ const io = new Server(server, {
 // browser receives Access-Control-Allow-Credentials on the preflight.
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin.replace(/\/$/, ''))) {
+  if (origin && isAllowedOrigin(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Vary', 'Origin');
@@ -94,7 +112,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", process.env.CLIENT_ORIGIN || 'http://localhost:5173', 'https://jaynaik2526-coding-club.hf.space'],
+      connectSrc: ["'self'", 'https://codingclubnmims.in', 'https://www.codingclubnmims.in', process.env.CLIENT_ORIGIN || 'http://localhost:5173', 'https://jaynaik2526-coding-club.hf.space'],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
     },

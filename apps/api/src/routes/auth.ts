@@ -54,7 +54,7 @@ router.post('/login', authLimiter, async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: String(email).toLowerCase().trim() });
     if (!user || !(await verifyPassword(password, user))) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
