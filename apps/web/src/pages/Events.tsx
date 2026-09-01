@@ -79,15 +79,16 @@ export function EventsPage() {
                     style={{ borderColor: 'rgba(26,22,18,.18)' }}
                   >
                     {bannerSrc && (
-                      <img
-                        src={bannerSrc}
-                        alt={ev.title}
-                        className="h-36 w-full border-b object-cover"
-                        style={{ borderColor: 'rgba(26,22,18,.18)' }}
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                        }}
-                      />
+                      <div className="h-44 w-full border-b bg-neutral-950 flex items-center justify-center overflow-hidden" style={{ borderColor: 'rgba(26,22,18,.18)' }}>
+                        <img
+                          src={bannerSrc}
+                          alt={ev.title}
+                          className="h-full w-full object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                      </div>
                     )}
                     <div className="flex flex-1 flex-col justify-between p-5">
                     <div>

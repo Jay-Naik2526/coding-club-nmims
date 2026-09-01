@@ -165,15 +165,16 @@ export function EventDetailPage() {
       </div>
 
       {bannerSrc && (
-        <img
-          src={bannerSrc}
-          alt={ev.title}
-          className="mb-8 h-64 w-full border object-cover sm:h-96"
-          style={{ borderColor: 'var(--news-ink)' }}
-          onError={(e) => {
-            e.currentTarget.style.display = 'none'
-          }}
-        />
+        <div className="mb-8 w-full border overflow-hidden bg-neutral-950 flex items-center justify-center" style={{ borderColor: 'var(--news-ink)' }}>
+          <img
+            src={bannerSrc}
+            alt={ev.title}
+            className="h-auto max-h-[750px] w-full object-contain"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+            }}
+          />
+        </div>
       )}
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_300px]">
