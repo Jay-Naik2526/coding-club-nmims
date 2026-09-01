@@ -112,7 +112,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", 'https://codingclubnmims.in', 'https://www.codingclubnmims.in', process.env.CLIENT_ORIGIN || 'http://localhost:5173', 'https://jaynaik2526-coding-club.hf.space'],
+      connectSrc: ["'self'", ...allowedOrigins, 'https://jaynaik2526-coding-club.hf.space'],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
     },
@@ -142,11 +142,7 @@ app.get('/health', (req, res) => {
 });
 
 // Crawler middleware to intercept bot scrapers and serve dynamic Open Graph SEO metadata
-const CRAWLERS = [
-  'googlebot', 'bingbot', 'yandexbot', 'duckduckbot',
-  'baiduspider', 'twitterbot', 'facebookexternalhit',
-  'discordbot', 'slackbot', 'telegrambot', 'whatsapp'
-];
+const CRAWLERS = ['facebookexternalhit', 'twitterbot', 'linkedinbot', 'whatsapp', 'telegrambot'];
 
 app.use(async (req, res, next) => {
   const userAgent = (req.headers['user-agent'] || '').toLowerCase();
@@ -163,7 +159,8 @@ app.use(async (req, res, next) => {
           const title = `${event.title} | Coding Club NMIMS`;
           const desc = event.description;
           const image = event.bannerUrl || 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800';
-          const url = `${process.env.CLIENT_ORIGIN || 'http://localhost:5173'}${urlPath}`;
+          const primaryOrigin = allowedOrigins[0] || 'http://localhost:5173';
+          const url = `${primaryOrigin}${urlPath}`;
 
           // Sanitise to prevent XSS via injected event content
           const esc = (s: string) => s
